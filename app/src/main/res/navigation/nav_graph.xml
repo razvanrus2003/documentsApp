@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.documentsapp.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_nav_home_to_nav_edit"
+            app:destination="@id/nav_edit" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_signature"
+            app:destination="@id/nav_signature" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_help"
+        android:name="com.example.documentsapp.HelpFragment"
+        android:label="@string/title_help"
+        tools:layout="@layout/fragment_help" />
+
+    <fragment
+        android:id="@+id/nav_camera"
+        android:name="com.example.documentsapp.CameraFragment"
+        android:label="@string/title_camera"
+        tools:layout="@layout/fragment_camera">
+        <action
+            android:id="@+id/action_nav_camera_to_nav_edit"
+            app:destination="@id/nav_edit" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_edit"
+        android:name="com.example.documentsapp.EditFragment"
+        android:label="@string/title_edit"
+        tools:layout="@layout/fragment_edit">
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_signature"
+        android:name="com.example.documentsapp.SignatureFragment"
+        android:label="@string/title_signature"
+        tools:layout="@layout/fragment_signature">
+        <action
+            android:id="@+id/action_nav_signature_to_nav_digital"
+            app:destination="@id/nav_digital_signature" />
+        <action
+            android:id="@+id/action_nav_signature_to_nav_svg"
+            app:destination="@id/nav_svg_signature" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_digital_signature"
+        android:name="com.example.documentsapp.DigitalSignatureFragment"
+        android:label="@string/title_digital_signature"
+        tools:layout="@layout/fragment_digital_signature" />
+
+    <fragment
+        android:id="@+id/nav_svg_signature"
+        android:name="com.example.documentsapp.SvgSignatureFragment"
+        android:label="@string/title_svg_signature"
+        tools:layout="@layout/fragment_svg_signature" />
+
+</navigation>

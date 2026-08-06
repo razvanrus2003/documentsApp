@@ -1,0 +1,44 @@
+# Gradle files
+.gradle/
+build/
+
+# Android Studio files
+*.iml
+.idea/
+local.properties
+
+# Output files
+*.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+
+# Log files
+*.log
+
+# Device files
+captures/
+*.hprof
+
+# Native files
+.externalNativeBuild/
+.cxx/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Navigation editor
+.navigation/
+
+# Secrets (optional but recommended)
+# google-services.json
+# *.jks
+# *.p12
+# *.key
+
+# Chat files
+.artifacts/
