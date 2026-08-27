@@ -7,34 +7,191 @@
     tools:context=".DigitalSignatureFragment">
 
     <TextView
-        android:id="@+id/text_digital_hint"
-        android:layout_width="wrap_content"
+        android:id="@+id/text_digital_title"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Digital Signature Key"
+        android:layout_margin="16dp"
+        android:text="@string/title_digital_signature"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_help"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <View
-        android:id="@+id/digital_canvas_placeholder"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:background="@android:color/white"
-        android:elevation="2dp"
-        app:layout_constraintBottom_toTopOf="@+id/button_save_digital"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_digital_hint" />
-
-    <Button
-        android:id="@+id/button_save_digital"
-        android:layout_width="0dp"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_help"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:icon="@android:drawable/ic_menu_help"
+        app:layout_constraintBottom_toBottomOf="@+id/text_digital_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/text_digital_title" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/button_save_digital"
+        app:layout_constraintTop_toBottomOf="@+id/text_digital_title">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_file_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/label_file_name"
+                app:placeholderText="@string/placeholder_file_name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_file_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/label_password"
+                app:passwordToggleEnabled="true"
+                app:placeholderText="@string/placeholder_password">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_common_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/label_common_name"
+                app:placeholderText="@string/placeholder_common_name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_common_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_toggle_optional"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/action_more_optional_fields"
+                app:icon="@android:drawable/arrow_down_float"
+                app:iconGravity="textEnd" />
+
+            <LinearLayout
+                android:id="@+id/layout_optional_fields"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_organization"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="@string/label_organization"
+                    app:placeholderText="@string/placeholder_organization">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_organization"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_org_unit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="@string/label_org_unit"
+                    app:placeholderText="@string/placeholder_org_unit">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_org_unit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_locality"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="@string/label_locality"
+                    app:placeholderText="@string/placeholder_locality">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_locality"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="@string/label_state"
+                    app:placeholderText="@string/placeholder_state">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_state"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_country"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="@string/label_country"
+                    app:placeholderText="@string/placeholder_country">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_country"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLength="2" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_save_digital"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
         android:layout_margin="16dp"
-        android:text="@string/action_save"
+        android:text="@string/action_create"
+        app:icon="@android:drawable/ic_input_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

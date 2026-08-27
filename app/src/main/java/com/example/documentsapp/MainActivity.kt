@@ -18,6 +18,14 @@ import com.google.android.material.navigation.NavigationView
 
 import androidx.navigation.navOptions
 
+import android.content.ContentValues
+import android.os.Environment
+import android.provider.MediaStore
+import java.io.InputStream
+import java.io.OutputStream
+
+import androidx.core.content.edit
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -32,6 +40,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
+
+        // Inject test PDFs if they don't exist
+        injectTestPdfs()
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
@@ -53,5 +64,46 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    private fun injectTestPdfs() {
+        val sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        if (sharedPrefs.getBoolean("test_pdfs_injected", false)) return
+
+        copyAssetToDownloads("sample_1.pdf")
+        copyAssetToDownloads("sample_2.pdf")
+
+        sharedPrefs.edit { putBoolean("test_pdfs_injected", true) }
+    }
+
+    private fun copyAssetToDownloads(fileName: String) {
+        try {
+            val inputStream: InputStream = assets.open(fileName)
+            val resolver = contentResolver
+            
+            val uri = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+                resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+            } else {
+                // For older versions, we might need WRITE_EXTERNAL_STORAGE permission
+                // For simplicity in this test injection, I'll use the app's external dir if public one is restricted
+                // or just skip if we want to be safe.
+                // However, user asked to add to system.
+                null 
+            }
+
+            uri?.let {
+                val outputStream: OutputStream? = resolver.openOutputStream(it)
+                outputStream?.use { out ->
+                    inputStream.copyTo(out)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

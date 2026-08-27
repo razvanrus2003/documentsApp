@@ -63,8 +63,11 @@ The goal is to identify gaps in the market and opportunities for differentiation
     - Option to import an existing signature from the device's storage.
 
 Home Page -> Help Page -> Home page
+
 Home page -> Camera Mode -> Edit Mode [-> Signature Mode] -> Home Page
+
 Home Page -> Edit Mode [-> Signature Mode] -> Home Page
+
 Home Page -> Signature Mode -> Home Page
 
 

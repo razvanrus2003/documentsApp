@@ -35,11 +35,17 @@
     <string name="action_add_signature">Add Signature</string>
     <string name="action_add_text">Add Text</string>
     <string name="action_save">Save</string>
+    <string name="action_create">Create</string>
+    <string name="action_cancel">Cancel</string>
     <string name="action_export">Export PDF</string>
 
     <!-- Signature Page -->
     <string name="signature_canvas_hint">Draw your signature here</string>
     <string name="action_import_signature">Import Signature</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_done">Done</string>
+    <string name="action_import_signature_file">Import Signature File</string>
+    <string name="eraser_desc">Eraser</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -83,5 +89,40 @@
         sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
+    </string>
+
+    <!-- Digital Signature Generation -->
+    <string name="title_digital_signature_help">Digital Signature Help</string>
+    <string name="label_file_name">File Name *</string>
+    <string name="label_password">KeyStore Password *</string>
+    <string name="label_common_name">Common Name (e.g. your name) *</string>
+    <string name="label_organization">Organization (optional)</string>
+    <string name="label_org_unit">Organizational Unit (optional)</string>
+    <string name="label_locality">Locality (City) (optional)</string>
+    <string name="label_state">State (optional)</string>
+    <string name="label_country">Country (2 letters) (optional)</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="error_password_too_short">Password must be at least 6 characters</string>
+    <string name="placeholder_file_name">e.g. my_signature</string>
+    <string name="placeholder_password">e.g. mySecret123</string>
+    <string name="placeholder_common_name">e.g. John Doe</string>
+    <string name="placeholder_organization">e.g. Acme Inc.</string>
+    <string name="placeholder_org_unit">e.g. Engineering</string>
+    <string name="placeholder_locality">e.g. San Francisco</string>
+    <string name="placeholder_state">e.g. CA</string>
+    <string name="placeholder_country">e.g. US</string>
+    <string name="action_more_optional_fields">More optional fields</string>
+    <string name="action_less_optional_fields">Less optional fields</string>
+    <string name="digital_signature_help_text">
+        A digital signature is a mathematical technique used to validate the authenticity and integrity of a digital document. It is the digital equivalent of a handwritten signature or stamped seal, but it offers far more inherent security.\n\n
+        &lt;b&gt;How it works:&lt;/b&gt;\n
+        When you generate a digital signature key (PKCS#12 file), the app creates a Public/Private key pair. The Private Key is kept secret by you and used to sign documents. The Public Key is included in a certificate and can be shared with others to verify your signature.\n\n
+        &lt;b&gt;What is a P12 file?&lt;/b&gt;\n
+        A .p12 (PKCS#12) file is an archive file format that stores your private key and certificate. It is protected by a password, which you must provide whenever you want to use the key to sign a document.\n\n
+        &lt;b&gt;Fields explained:&lt;/b&gt;\n
+        - &lt;b&gt;Alias:&lt;/b&gt; A name to identify this key in your storage.\n
+        - &lt;b&gt;Common Name:&lt;/b&gt; Usually your full name.\n
+        - &lt;b&gt;Organization:&lt;/b&gt; The company or entity you belong to.\n
+        - &lt;b&gt;Country:&lt;/b&gt; The two-letter ISO country code (e.g., US, RO, DE).
     </string>
 </resources>

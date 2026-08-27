@@ -6,13 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".EditFragment">
 
-    <ImageView
-        android:id="@+id/image_preview"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_pdf_pages"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="16dp"
-        android:background="@android:color/darker_gray"
-        android:contentDescription="Document Preview"
+        android:background="@android:color/white"
         app:layout_constraintBottom_toTopOf="@+id/edit_actions_scroll"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,37 +31,61 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_crop"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
-                android:text="@string/action_crop" />
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:icon="@android:drawable/ic_menu_crop"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_rotate"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
-                android:text="@string/action_rotate" />
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:icon="@android:drawable/ic_menu_rotate"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_adjust"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
-                android:text="@string/action_adjust" />
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:icon="@android:drawable/ic_menu_manage"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_add_signature"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
-                android:text="@string/action_add_signature" />
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:icon="@android:drawable/ic_menu_edit"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
 
         </LinearLayout>
     </HorizontalScrollView>
@@ -77,20 +100,52 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-            android:id="@+id/button_save"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_cancel"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="@string/action_save" />
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:icon="@android:drawable/ic_menu_close_clear_cancel"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="32dp" />
 
-        <Button
-            android:id="@+id/button_export"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_save"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:layout_weight="1"
-            android:text="@string/action_export" />
+            android:layout_marginEnd="8dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:icon="@android:drawable/ic_menu_save"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="32dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_export"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:icon="@android:drawable/ic_menu_share"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="32dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

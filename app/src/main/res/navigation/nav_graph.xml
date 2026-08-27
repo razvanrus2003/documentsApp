@@ -39,10 +39,29 @@
         android:name="com.example.documentsapp.EditFragment"
         android:label="@string/title_edit"
         tools:layout="@layout/fragment_edit">
+        <argument
+            android:name="documentUri"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 
     <fragment
         android:id="@+id/nav_signature"
+        android:name="com.example.documentsapp.ui.SignatureListFragment"
+        android:label="@string/title_signature"
+        tools:layout="@layout/fragment_signature_list">
+        <argument
+            android:name="origin"
+            app:argType="string"
+            android:defaultValue="home" />
+        <action
+            android:id="@+id/action_nav_signature_list_to_nav_signature_selection"
+            app:destination="@id/nav_signature_selection" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_signature_selection"
         android:name="com.example.documentsapp.SignatureFragment"
         android:label="@string/title_signature"
         tools:layout="@layout/fragment_signature">
@@ -58,7 +77,17 @@
         android:id="@+id/nav_digital_signature"
         android:name="com.example.documentsapp.DigitalSignatureFragment"
         android:label="@string/title_digital_signature"
-        tools:layout="@layout/fragment_digital_signature" />
+        tools:layout="@layout/fragment_digital_signature">
+        <action
+            android:id="@+id/action_nav_digital_to_help"
+            app:destination="@id/nav_digital_signature_help" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_digital_signature_help"
+        android:name="com.example.documentsapp.DigitalSignatureHelpFragment"
+        android:label="@string/title_digital_signature_help"
+        tools:layout="@layout/fragment_digital_signature_help" />
 
     <fragment
         android:id="@+id/nav_svg_signature"

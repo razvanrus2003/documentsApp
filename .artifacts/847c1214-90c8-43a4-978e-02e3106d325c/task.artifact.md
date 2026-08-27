@@ -1,7 +1,10 @@
-- `[x]` Update `strings.xml` with new labels
-- `[x]` Create `fragment_digital_signature.xml` and `fragment_svg_signature.xml`
-- `[x]` Create `DigitalSignatureFragment.kt` and `SvgSignatureFragment.kt`
-- `[x]` Update `nav_graph.xml` with new destinations
-- `[x]` Redesign `fragment_signature.xml` with two square buttons
-- `[x]` Update `SignatureFragment.kt` to handle navigation
-- `[x]` Verify the new flow on device
+- `[ ]` Create `fragment_signature_list.xml`
+- `[ ]` Create `SignatureListFragment.kt`
+- `[ ]` Update `nav_graph.xml` for the new signature flow
+- `[ ]` Standardize `fragment_home.xml` buttons
+- `[ ]` Standardize `fragment_camera.xml` buttons
+- `[ ]` Standardize `fragment_edit.xml` buttons
+- `[ ]` Standardize `fragment_signature.xml` buttons (selection screen)
+- `[ ]` Standardize `fragment_svg_signature.xml` buttons
+- `[ ]` Standardize `fragment_digital_signature.xml` buttons
+- `[ ]` Verify UI and navigation

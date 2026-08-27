@@ -1,39 +1,63 @@
-# Refactor Signature Selection and Add Sub-modes
+# Signature List and UI Standardization
 
-This plan describes the refactoring of the Signature screen into a selection menu with two options: Digital Signature and SVG Signature. Each option will lead to its own dedicated page.
+This plan introduces a "My Signatures" list view and standardizes the app's UI to use icon-only, square buttons.
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Button Style**: I will apply `app:cornerRadius="0dp"` and `app:iconPadding="0dp"` to all buttons to ensure a strict square look. All text will be removed and replaced with representative icons.
+> **Navigation Change**: The "Signatures" section in the drawer will now lead to `SignatureListFragment`. The "Create New" button in that list will lead to the type selection screen.
+> **Signature Storage**: The list will scan the `files/signatures/` directory for SVG files.
 
 ## Proposed Changes
 
-### [Component] Resources & Navigation
+### [Component] Signature Management
 
-#### [MODIFY] [strings.xml](file:///home/razvan/Documents/DocumentsApp/app/src/main/res/values/strings.xml)
-- Add labels for "Digital Signature" and "SVG Signature" buttons.
-- Add titles for the new screens.
+#### [NEW] [SignatureListFragment.kt](file:///home/razvan/Documents/DocumentsApp/app/src/main/java/com/example/documentsapp/ui/SignatureListFragment.kt) & [fragment_signature_list.xml](file:///home/razvan/Documents/DocumentsApp/app/src/main/res/layout/fragment_signature_list.xml)
+- Display a grid or list of saved signatures.
+- Add a square "Create New" button (icon: `ic_input_add`).
 
 #### [MODIFY] [nav_graph.xml](file:///home/razvan/Documents/DocumentsApp/app/src/main/res/navigation/nav_graph.xml)
-- Add `DigitalSignatureFragment` destination.
-- Add `SvgSignatureFragment` destination.
-- Add actions from `SignatureFragment` to these new destinations.
+- Set `SignatureListFragment` as the destination for `nav_signature`.
+- Update actions to flow: List -> Type Selection -> Drawing Page.
 
-### [Component] UI & Fragments
+### [Component] UI Standardization (Icon-only, Square)
 
-#### [MODIFY] [fragment_signature.xml](file:///home/razvan/Documents/DocumentsApp/app/src/main/res/layout/fragment_signature.xml)
-- Redesign to feature two large square buttons side-by-side or stacked.
-- Remove the drawing canvas placeholder from this selection screen.
+I will update the following fragments to use icon-only square buttons:
 
-#### [MODIFY] [SignatureFragment.kt](file:///home/razvan/Documents/DocumentsApp/app/src/main/java/com/example/documentsapp/SignatureFragment.kt)
-- Set up click listeners for the two new buttons to navigate to their respective sub-modes.
+#### 1. HomeFragment
+- **Scan**: `ic_menu_camera`
+- **Import**: `ic_menu_add`
 
-#### [NEW] [DigitalSignatureFragment.kt](file:///home/razvan/Documents/DocumentsApp/app/src/main/java/com/example/documentsapp/DigitalSignatureFragment.kt) & [fragment_digital_signature.xml](file:///home/razvan/Documents/DocumentsApp/app/src/main/res/layout/fragment_digital_signature.xml)
-- A screen similar to the previous signature page, focused on digital keys.
+#### 2. EditFragment
+- **Crop**: `ic_menu_crop` (if available, otherwise custom)
+- **Rotate**: `ic_menu_rotate`
+- **Adjust**: `ic_menu_manage`
+- **Add Signature**: `ic_menu_edit`
+- **Cancel**: `ic_menu_close_clear_cancel`
+- **Save**: `ic_menu_save`
+- **Export**: `ic_menu_share`
 
-#### [NEW] [SvgSignatureFragment.kt](file:///home/razvan/Documents/DocumentsApp/app/src/main/java/com/example/documentsapp/SvgSignatureFragment.kt) & [fragment_svg_signature.xml](file:///home/razvan/Documents/DocumentsApp/app/src/main/res/layout/fragment_svg_signature.xml)
-- A screen similar to the previous signature page, focused on SVG path drawing/importing.
+#### 3. CameraFragment
+- **Capture**: `ic_menu_camera`
+- **Flash**: `ic_menu_info_details` (will find a better one)
+
+#### 4. Svg/Digital Fragments
+- **Clear**: `ic_menu_revert`
+- **Save**: `ic_menu_save`
+- **Eraser**: `ic_menu_delete`
+
+### [Component] Common Styling
+- I will ensure every button uses:
+    - `style="@style/Widget.Material3.Button.TonalButton"`
+    - `app:cornerRadius="0dp"`
+    - `android:text=""`
+    - `app:icon="..."`
+    - `android:contentDescription="..."` (for accessibility)
 
 ## Verification Plan
 
 ### Manual Verification
-1.  **Selection Screen**: Navigate to Signature (from Home or Edit). Verify you see two square buttons: "Digital Signature" and "SVG Signature".
-2.  **Digital Flow**: Tap "Digital Signature" -> Verify it opens the digital signature page -> Tap "Save" -> Should return to previous screen.
-3.  **SVG Flow**: Tap "SVG Signature" -> Verify it opens the SVG signature page -> Tap "Save" -> Should return to previous screen.
-4.  **Backstack**: Verify that pressing "Back" from either sub-mode returns you to the Selection screen, and "Back" from Selection returns you to Home/Edit.
+1.  **Button Check**: Browse every screen. Verify all buttons are square and contain only icons.
+2.  **Signature List**: Save a signature -> Go to Signatures list -> Verify it appears there.
+3.  **New Signature Flow**: From list -> Press [+] -> Choose Type -> Draw -> Save -> Returned to list.

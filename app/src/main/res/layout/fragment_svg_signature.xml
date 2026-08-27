@@ -4,47 +4,185 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     tools:context=".SvgSignatureFragment">
 
-    <TextView
-        android:id="@+id/text_svg_hint"
-        android:layout_width="wrap_content"
+    <!-- Tool Palette -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_tools"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="@string/signature_canvas_hint"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <View
-        android:id="@+id/svg_canvas_placeholder"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <!-- First Row: Color, Slider, Info -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_color_picker"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    app:cornerRadius="24dp"
+                    app:backgroundTint="@android:color/black" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_size"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="8dp"
+                    android:valueFrom="2.0"
+                    android:valueTo="50.0"
+                    android:value="10.0" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_tips"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    app:cornerRadius="16dp"
+                    app:icon="@android:drawable/ic_menu_help"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="20dp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="?attr/colorOutlineVariant" />
+
+            <!-- Second Row: Tools, Clear -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/toggle_group_tools"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true"
+                    app:checkedButton="@+id/button_tool_pen">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_tool_pen"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        app:cornerRadius="24dp"
+                        app:icon="@drawable/ic_pencil_custom"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:iconSize="32dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_tool_pencil"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        app:cornerRadius="24dp"
+                        app:icon="@drawable/ic_pen_custom"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_tool_eraser"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        app:cornerRadius="24dp"
+                        app:icon="@drawable/ic_eraser_custom"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_clear"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    app:cornerRadius="24dp"
+                    app:icon="@drawable/ic_bin_custom"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Canvas -->
+
+    <com.example.documentsapp.ui.SignatureDrawingView
+        android:id="@+id/drawing_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
+        android:layout_margin="8dp"
         android:background="@android:color/white"
         android:elevation="2dp"
-        app:layout_constraintBottom_toTopOf="@+id/button_import_svg"
+        app:layout_constraintBottom_toTopOf="@+id/button_done_svg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_svg_hint" />
+        app:layout_constraintTop_toBottomOf="@id/card_tools" />
 
-    <Button
-        android:id="@+id/button_import_svg"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_done_svg"
+        style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
         android:layout_margin="16dp"
-        android:text="@string/action_import_signature"
-        app:layout_constraintBottom_toTopOf="@+id/button_save_svg"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/button_save_svg"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="@string/action_save"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        app:icon="@android:drawable/ic_menu_save"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Popular Colors"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+        <View android:id="@+id/preset_black" android:layout_width="32dp" android:layout_height="32dp" android:layout_margin="4dp" android:background="@drawable/circle_shape" android:backgroundTint="@android:color/black" />
+        <View android:id="@+id/preset_red" android:layout_width="32dp" android:layout_height="32dp" android:layout_margin="4dp" android:background="@drawable/circle_shape" android:backgroundTint="@android:color/holo_red_dark" />
+        <View android:id="@+id/preset_light_blue" android:layout_width="32dp" android:layout_height="32dp" android:layout_margin="4dp" android:background="@drawable/circle_shape" android:backgroundTint="@android:color/holo_blue_light" />
+        <View android:id="@+id/preset_green" android:layout_width="32dp" android:layout_height="32dp" android:layout_margin="4dp" android:background="@drawable/circle_shape" android:backgroundTint="@android:color/holo_green_dark" />
+        <View android:id="@+id/preset_purple" android:layout_width="32dp" android:layout_height="32dp" android:layout_margin="4dp" android:background="@drawable/circle_shape" android:backgroundTint="@android:color/holo_purple" />
+        <View android:id="@+id/preset_dark_blue" android:layout_width="32dp" android:layout_height="32dp" android:layout_margin="4dp" android:background="@drawable/circle_shape" android:backgroundTint="@android:color/holo_blue_dark" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <com.example.documentsapp.ui.SaturationValueMapView
+            android:id="@+id/sat_val_map"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/darker_gray" />
+
+        <com.example.documentsapp.ui.ColorHueSliderView
+            android:id="@+id/hue_slider"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/edit_r"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="R"
+                android:inputType="number"
+                android:maxLength="3" />
+
+            <EditText
+                android:id="@+id/edit_g"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="G"
+                android:inputType="number"
+                android:maxLength="3" />
+
+            <EditText
+                android:id="@+id/edit_b"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="B"
+                android:inputType="number"
+                android:maxLength="3" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/color_preview"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/circle_shape"
+            android:backgroundTint="@android:color/black" />
+    </LinearLayout>
+
+</LinearLayout>

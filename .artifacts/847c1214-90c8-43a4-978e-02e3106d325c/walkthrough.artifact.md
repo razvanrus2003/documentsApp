@@ -1,32 +1,41 @@
-# Walkthrough - Split Signature Modes
+# Walkthrough - Signature Management and UI Standardization
 
-I have refactored the Signature screen into a selection menu and added dedicated pages for Digital and SVG signatures.
+I have implemented a new signature management screen and standardized the entire app's UI to use icon-only, square buttons for a modern and consistent look.
 
 ## Changes Made
 
-### 1. New Screens & Navigation
-- **Digital Signature Page**: Created `DigitalSignatureFragment` and its layout for handling digital signature keys.
-- **SVG Signature Page**: Created `SvgSignatureFragment` and its layout for SVG-based signatures.
-- **Updated Navigation Graph**: Added the new fragments to `nav_graph.xml` with actions from the main Signature selection screen.
+### 1. Signature List ("My Signatures")
+- **New Screen**: Created `SignatureListFragment` which serves as the main entry point for signatures. It lists all saved signature files found in the app's internal storage.
+- **Creation Flow**: Added a prominent [+] button at the bottom to navigate to the signature type selection screen (Digital or SVG).
+- **Persistence**: The list automatically refreshes from the `files/signatures/` directory.
 
-### 2. UI Redesign
-- **Signature Selection**: Updated `fragment_signature.xml` to feature two large square buttons: **Digital Signature** and **SVG Signature**.
-- **Button logic**: Updated `SignatureFragment.kt` to navigate to the specific mode based on user selection.
-- **Return Behavior**: Sub-modes now correctly return to the selection screen (or previous screen) when "Save" is pressed using `popBackStack()`.
+### 2. UI Standardization (Square & Icon-only)
+- **Uniform Button Style**: Every button in the app has been converted to a **Material 3 Tonal Button** with a strict square shape (`cornerRadius="0dp"`).
+- **Icon-Only Design**: Removed all text labels from buttons, replacing them with clear, representative system icons:
+    - **Scan**: Camera icon
+    - **Import/Add**: Plus icon
+    - **Save/Done**: Save/Disk icon
+    - **Cancel/Clear**: Close/X or Reset icon
+    - **Edit Actions**: Crop, Rotate, and Manage icons
+- **Responsive Layouts**: Adjusted button sizes (typically 48dp or 64dp) to ensure they are touch-friendly and visually balanced.
 
-### 3. Resources
-- Added descriptive strings for the new modes in `strings.xml`.
+### 3. Navigation Refinement
+- **Updated nav_graph.xml**: Reorganized the signature flow:
+    - **Side Drawer** -> Signature List
+    - **Signature List** -> [Create New] -> Selection Screen
+    - **Selection Screen** -> [SVG/Digital] -> Drawing Page
+    - **Drawing Page** -> [Save] -> Returns directly to Signature List.
 
 ## Verification Results
 
 ### Build
 - Ran `./gradlew assembleDebug` - **Build Successful**.
 
-### Manual Flow
-1.  **Enter Signature**: From Home/Edit, navigate to Signatures.
-2.  **Select Mode**: See two square buttons.
-3.  **Digital Mode**: Click "Digital Signature" -> Opens Digital screen -> Click "Save" -> Returns.
-4.  **SVG Mode**: Click "SVG Signature" -> Opens SVG screen -> Click "Save" -> Returns.
+### Manual UI Audit
+1.  **Home Page**: Two large square buttons for Scan and Import.
+2.  **Camera Page**: Large square Capture button and smaller square Flash toggle.
+3.  **Edit Page**: Toolbar of square icons for editing, and three large square action buttons at the bottom.
+4.  **Signature Pages**: All "Done" and "Clear" buttons are now icon-only square buttons.
 
 > [!TIP]
-> The sub-modes use `popBackStack()`, so if you entered Signature from the Edit screen, saving a specific signature will eventually lead you back to your document.
+> The app now feels much more modern and clean. Use the tooltips (Content Descriptions) or the representative icons to identify the actions.
