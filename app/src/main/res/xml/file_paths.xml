@@ -2,4 +2,6 @@
 <paths>
     <files-path name="my_signatures" path="signatures/" />
     <files-path name="digital_signatures" path="digital_signatures/" />
+    <files-path name="internal_files" path="." />
+    <cache-path name="cache_files" path="." />
 </paths>

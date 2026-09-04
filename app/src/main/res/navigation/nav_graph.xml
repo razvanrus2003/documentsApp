@@ -12,10 +12,13 @@
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_nav_home_to_nav_edit"
-            app:destination="@id/nav_edit" />
+            app:destination="@id/nav_edit_images" />
         <action
             android:id="@+id/action_nav_home_to_nav_signature"
             app:destination="@id/nav_signature" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_pdf_view"
+            app:destination="@id/nav_pdf_view" />
     </fragment>
 
     <fragment
@@ -31,19 +34,48 @@
         tools:layout="@layout/fragment_camera">
         <action
             android:id="@+id/action_nav_camera_to_nav_edit"
-            app:destination="@id/nav_edit" />
+            app:destination="@id/nav_edit_images" />
+        <action
+            android:id="@+id/action_nav_camera_to_nav_crop"
+            app:destination="@id/nav_crop" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_edit"
-        android:name="com.example.documentsapp.EditFragment"
-        android:label="@string/title_edit"
-        tools:layout="@layout/fragment_edit">
+        android:id="@+id/nav_crop"
+        android:name="com.example.documentsapp.CropFragment"
+        android:label="Crop Document"
+        tools:layout="@layout/fragment_crop">
+        <argument
+            android:name="imageUri"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_nav_crop_to_nav_edit"
+            app:destination="@id/nav_edit_images" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_edit_images"
+        android:name="com.example.documentsapp.EditImagesFragment"
+        android:label="Edit Images"
+        tools:layout="@layout/fragment_edit_images">
         <argument
             android:name="documentUri"
             app:argType="string"
             app:nullable="true"
             android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_nav_edit_to_pdf_view"
+            app:destination="@id/nav_pdf_view" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_pdf_view"
+        android:name="com.example.documentsapp.PdfViewFragment"
+        android:label="PDF View"
+        tools:layout="@layout/fragment_pdf_view">
+        <argument
+            android:name="documentUri"
+            app:argType="string" />
     </fragment>
 
     <fragment

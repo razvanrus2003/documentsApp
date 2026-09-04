@@ -7,8 +7,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.documentsapp.databinding.ItemDocumentBinding
 
-class DocumentAdapter(private val onClick: (DocumentModel) -> Unit) :
-    ListAdapter<DocumentModel, DocumentAdapter.ViewHolder>(DocumentDiffCallback()) {
+class DocumentAdapter(
+    private val onClick: (DocumentModel) -> Unit,
+    private val onDelete: (DocumentModel) -> Unit,
+) : ListAdapter<DocumentModel, DocumentAdapter.ViewHolder>(DocumentDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemDocumentBinding.inflate(
@@ -28,6 +30,7 @@ class DocumentAdapter(private val onClick: (DocumentModel) -> Unit) :
             binding.textDocName.text = document.name
             binding.textDocUri.text = document.uriString
             binding.root.setOnClickListener { onClick(document) }
+            binding.buttonDeleteDoc.setOnClickListener { onDelete(document) }
         }
     }
 

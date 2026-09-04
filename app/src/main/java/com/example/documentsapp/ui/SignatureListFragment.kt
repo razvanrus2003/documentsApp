@@ -18,6 +18,7 @@ import com.example.documentsapp.R
 import com.example.documentsapp.databinding.FragmentSignatureListBinding
 import com.example.documentsapp.databinding.ItemSignatureBinding
 import com.example.documentsapp.utils.SvgUtils
+import com.example.documentsapp.utils.applySystemWindowInsetsMargin
 import java.io.File
 
 class SignatureListFragment : Fragment() {
@@ -46,6 +47,8 @@ class SignatureListFragment : Fragment() {
         setupUI()
         setupRecyclerView()
         loadSignatures()
+
+        binding.bottomActionBar.applySystemWindowInsetsMargin(bottom = true)
     }
 
     private fun setupUI() {

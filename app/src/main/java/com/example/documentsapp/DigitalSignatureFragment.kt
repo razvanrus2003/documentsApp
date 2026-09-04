@@ -3,10 +3,12 @@ package com.example.documentsapp
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.documentsapp.databinding.FragmentDigitalSignatureBinding
 import com.example.documentsapp.utils.P12Generator
+import com.example.documentsapp.utils.applySystemWindowInsetsMargin
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.io.File
 import java.security.Security
@@ -23,7 +25,7 @@ class DigitalSignatureFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentDigitalSignatureBinding.inflate(inflater, container, false)
         return binding.root
@@ -35,7 +37,7 @@ class DigitalSignatureFragment : Fragment() {
         // Pre-fill file name if empty
         if (binding.editFileName.text.isNullOrBlank()) {
             val randomId = java.util.UUID.randomUUID().toString().take(6)
-            binding.editFileName.setText("sig_$randomId")
+            binding.editFileName.setText(getString(R.string.sig_file_name_placeholder, randomId))
         }
 
         binding.buttonSaveDigital.setOnClickListener {
@@ -49,7 +51,7 @@ class DigitalSignatureFragment : Fragment() {
         }
 
         binding.buttonToggleOptional.setOnClickListener {
-            val isVisible = binding.layoutOptionalFields.visibility == View.VISIBLE
+            val isVisible = binding.layoutOptionalFields.isVisible
             if (isVisible) {
                 binding.layoutOptionalFields.visibility = View.GONE
                 binding.buttonToggleOptional.text = getString(R.string.action_more_optional_fields)
@@ -60,6 +62,8 @@ class DigitalSignatureFragment : Fragment() {
                 binding.buttonToggleOptional.setIconResource(android.R.drawable.arrow_up_float)
             }
         }
+
+        binding.buttonSaveDigital.applySystemWindowInsetsMargin(bottom = true)
     }
 
     private fun validateFields(): Boolean {
@@ -82,7 +86,7 @@ class DigitalSignatureFragment : Fragment() {
         }
 
         val fields = listOf(
-            binding.editCommonName to binding.layoutCommonName
+            binding.editCommonName to binding.layoutCommonName,
         )
 
         for ((edit, layout) in fields) {
@@ -124,7 +128,7 @@ class DigitalSignatureFragment : Fragment() {
             val resultFile = P12Generator.generateP12(params, dir)
 
             Toast.makeText(requireContext(), "Signature generated: ${resultFile.name}", Toast.LENGTH_LONG).show()
-            findNavController().popBackStack(R.id.nav_signature, false)
+            findNavController().popBackStack(R.id.nav_signature, inclusive = false)
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()

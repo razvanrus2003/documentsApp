@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditFragment">
+    tools:context=".EditImagesFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_pdf_pages"
@@ -12,6 +12,8 @@
         android:layout_height="0dp"
         android:layout_margin="0dp"
         android:background="@android:color/transparent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toTopOf="@+id/bottom_actions"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,22 +28,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_add_page"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            app:icon="@android:drawable/ic_input_add"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconSize="32dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_cancel"
@@ -60,7 +46,7 @@
             app:iconSize="32dp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_save"
+            android:id="@+id/button_add_page"
             style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="64dp"
@@ -70,13 +56,13 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            app:icon="@android:drawable/ic_menu_save"
+            app:icon="@android:drawable/ic_input_add"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="32dp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_export"
+            android:id="@+id/button_done"
             style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="64dp"
@@ -85,7 +71,7 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            app:icon="@android:drawable/ic_menu_share"
+            app:icon="@android:drawable/ic_menu_send"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="32dp" />

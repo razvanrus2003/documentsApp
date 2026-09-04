@@ -18,6 +18,8 @@ import com.example.documentsapp.databinding.FragmentSvgSignatureBinding
 import com.example.documentsapp.databinding.LayoutColorPickerBinding
 import com.example.documentsapp.ui.SignatureDrawingView
 import com.example.documentsapp.utils.SvgExporter
+import com.example.documentsapp.utils.applySystemWindowInsetsMargin
+import com.example.documentsapp.utils.applySystemWindowInsetsPadding
 import com.google.android.material.slider.Slider
 import java.io.FileOutputStream
 
@@ -55,6 +57,9 @@ class SvgSignatureFragment : Fragment() {
                 showNamingDialog()
             }
         }
+
+        binding.buttonDoneSvg.applySystemWindowInsetsMargin(bottom = true)
+        view.applySystemWindowInsetsPadding(top = true)
     }
 
     private fun setupToolPalette() {

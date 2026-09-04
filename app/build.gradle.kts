@@ -2,6 +2,26 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+configurations.all {
+    resolutionStrategy {
+        dependencySubstitution {
+            substitute(module("org.bouncycastle:bcprov-jdk15to18")).using(module("org.bouncycastle:bcprov-jdk18on:${libs.versions.bouncycastle.get()}"))
+            substitute(module("org.bouncycastle:bcpkix-jdk15to18")).using(module("org.bouncycastle:bcpkix-jdk18on:${libs.versions.bouncycastle.get()}"))
+            substitute(module("org.bouncycastle:bcutil-jdk15to18")).using(module("org.bouncycastle:bcutil-jdk18on:${libs.versions.bouncycastle.get()}"))
+        }
+
+        force(libs.bouncycastle.prov)
+        force(libs.bouncycastle.pkix)
+        force(libs.bouncycastle.util)
+
+        eachDependency {
+            if (requested.group == "org.bouncycastle") {
+                useVersion(libs.versions.bouncycastle.get())
+            }
+        }
+    }
+}
+
 android {
     namespace = "com.example.documentsapp"
     compileSdk {
@@ -36,8 +56,15 @@ android {
     }
 
     packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE*"
+            excludes += "META-INF/NOTICE*"
+            excludes += "META-INF/kotlin-stdlib.kotlin_module"
+        }
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = false
         }
     }
 }
@@ -63,11 +90,9 @@ dependencies {
     implementation(libs.bouncycastle.pkix)
 
     // Detection Engines
-    implementation(libs.boofcv.android)
-    implementation(libs.boofcv.core)
-    implementation(libs.boofcv.feature)
-    implementation(libs.boofcv.ip)
-    implementation(libs.boofcv.types)
+    implementation(libs.opencv)
+    implementation(libs.pdfbox.android)
+    implementation(libs.bouncycastle.util)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)

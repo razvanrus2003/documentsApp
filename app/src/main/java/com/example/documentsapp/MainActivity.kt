@@ -3,7 +3,6 @@ package com.example.documentsapp
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.enableEdgeToEdge
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -26,6 +25,9 @@ import java.io.OutputStream
 
 import androidx.core.content.edit
 
+import org.opencv.android.OpenCVLoader
+import android.util.Log
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -34,6 +36,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        if (OpenCVLoader.initLocal()) {
+            Log.i("OpenCV", "OpenCV loaded successfully")
+        } else {
+            Log.e("OpenCV", "OpenCV initialization failed!")
+        }
+        
         enableEdgeToEdge()
 
         binding = ActivityMainBinding.inflate(layoutInflater)

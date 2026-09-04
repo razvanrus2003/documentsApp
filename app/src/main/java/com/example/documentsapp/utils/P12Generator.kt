@@ -24,7 +24,7 @@ object P12Generator {
         val organizationalUnit: String,
         val locality: String,
         val state: String,
-        val country: String
+        val country: String,
     )
 
     fun generateP12(params: P12Params, outputDir: File): File {
@@ -65,9 +65,10 @@ object P12Generator {
     }
 
     private fun generateSelfSignedCertificate(keyPair: KeyPair, subject: X500Name): X509Certificate {
-        val serialNumber = BigInteger.valueOf(System.currentTimeMillis())
+        val random = SecureRandom()
+        val serialNumber = BigInteger(64, random)
         val notBefore = Date()
-        val notAfter = Date(notBefore.time + 365L * 24 * 60 * 60 * 1000 * 10) // 10 years
+        val notAfter = Date(notBefore.time + (365L * 24 * 60 * 60 * 1000 * 10)) // 10 years
         val bcProvider = BouncyCastleProvider()
 
         val certBuilder = JcaX509v3CertificateBuilder(

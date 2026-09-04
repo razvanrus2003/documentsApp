@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import com.example.documentsapp.databinding.FragmentHelpBinding
+import com.example.documentsapp.utils.applySystemWindowInsetsPadding
 
 class HelpFragment : Fragment() {
 
@@ -16,6 +17,11 @@ class HelpFragment : Fragment() {
     ): View {
         _binding = FragmentHelpBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.applySystemWindowInsetsPadding(bottom = true)
     }
 
     override fun onDestroyView() {

@@ -60,15 +60,24 @@ The goal is to identify gaps in the market and opportunities for differentiation
 
 - Signature Mode:
     - Paint canvas for creating a signature
-    - Option to import an existing signature from the device's storage.
+    - Option to create a digital signature (not commanded)
+    - Import / Export an existing signature to / from the device's storage.
 
 Home Page -> Help Page -> Home page
 
-Home page -> Camera Mode -> Edit Mode [-> Signature Mode] -> Home Page
+Home page -> Camera Mode -> Edit Mode -> Home Page
 
-Home Page -> Edit Mode [-> Signature Mode] -> Home Page
+Home Page -> Edit Mode -> Home Page
 
-Home Page -> Signature Mode -> Home Page
+Home Page -> Recent Signature -> Add New -> Canvas Page
+                                         -> Digital Signature Form   
+                                         -> Import from Device [ -> Info Page]
+                              -> Export to Device
+
+Known Bugs:
+  Canvas - after a number of lines, you are kickout of canvas
+         - pen - o line will apppear from origin to currnet location if you hold the finger over a point for some time
+
 
 
 

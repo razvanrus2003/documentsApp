@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.documentsapp.databinding.FragmentSignatureBinding
+import com.example.documentsapp.utils.applySystemWindowInsetsMargin
 import java.io.File
 import java.io.FileOutputStream
 
@@ -50,6 +51,8 @@ class SignatureFragment : Fragment() {
         binding.buttonImportSignature.setOnClickListener {
             importLauncher.launch("*/*")
         }
+
+        binding.buttonImportSignature.applySystemWindowInsetsMargin(bottom = true)
     }
 
     private fun getFileName(uri: android.net.Uri): String? {

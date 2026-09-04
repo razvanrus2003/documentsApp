@@ -224,56 +224,67 @@ class SignatureDrawingView @JvmOverloads constructor(
                     
                     pathMeasure.setPath(segmentPath, false)
                     val length = pathMeasure.length
-                    val step = 1.0f 
-                    var d = 0f
-                    val pos = FloatArray(2)
-                    val tan = FloatArray(2)
-                    val quadPath = Path()
                     
-                    while (d <= length) {
-                        pathMeasure.getPosTan(d, pos, tan)
-                        val t = if (length == 0f) 0f else d / length
-                        val w = lastStrokeWidth + (width - lastStrokeWidth) * t
+                    if (length > 0.1f) {
+                        val step = 1.0f 
+                        var d = 0f
+                        val pos = floatArrayOf(lastMidX, lastMidY)
+                        val tan = floatArrayOf(0f, 0f)
+                        val quadPath = Path()
                         
-                        val px = pos[0]
-                        val py = pos[1]
-                        val tx = tan[0]
-                        val ty = tan[1]
-                        
-                        // Normal vector
-                        val nx = -ty
-                        val ny = tx
-                        
-                        val lx = px + nx * (w / 2f)
-                        val ly = py + ny * (w / 2f)
-                        val rx = px - nx * (w / 2f)
-                        val ry = py - ny * (w / 2f)
-                        
-                        if (hasLastEdges) {
-                            quadPath.reset()
-                            quadPath.moveTo(lastLeftX, lastLeftY)
-                            quadPath.lineTo(lx, ly)
-                            quadPath.lineTo(rx, ry)
-                            quadPath.lineTo(lastRightX, lastRightY)
-                            quadPath.close()
-                            drawCanvas?.drawPath(quadPath, currentPaint)
-                            drawCanvas?.drawCircle(px, py, w / 2f, currentPaint)
+                        while (d <= length) {
+                            pathMeasure.getPosTan(d, pos, tan)
+                            val t = d / length
+                            val w = lastStrokeWidth + (width - lastStrokeWidth) * t
+                            
+                            val px = pos[0]
+                            val py = pos[1]
+                            val tx = tan[0]
+                            val ty = tan[1]
+                            
+                            // Normal vector
+                            val nx = -ty
+                            val ny = tx
+                            
+                            val lx = px + nx * (w / 2f)
+                            val ly = py + ny * (w / 2f)
+                            val rx = px - nx * (w / 2f)
+                            val ry = py - ny * (w / 2f)
+                            
+                            if (hasLastEdges) {
+                                quadPath.reset()
+                                quadPath.moveTo(lastLeftX, lastLeftY)
+                                quadPath.lineTo(lx, ly)
+                                quadPath.lineTo(rx, ry)
+                                quadPath.lineTo(lastRightX, lastRightY)
+                                quadPath.close()
+                                drawCanvas?.drawPath(quadPath, currentPaint)
+                                drawCanvas?.drawCircle(px, py, w / 2f, currentPaint)
+                            }
+                            
+                            currentStrokePoints.add(PointF(px, py))
+                            currentStrokeWidths.add(w)
+                            
+                            lastLeftX = lx
+                            lastLeftY = ly
+                            lastRightX = rx
+                            lastRightY = ry
+                            hasLastEdges = true
+                            
+                            if (d == length) break
+                            d = (d + step).coerceAtMost(length)
                         }
-                        
-                        currentStrokePoints.add(PointF(px, py))
-                        currentStrokeWidths.add(w)
-                        
-                        lastLeftX = lx
-                        lastLeftY = ly
-                        lastRightX = rx
-                        lastRightY = ry
-                        hasLastEdges = true
-                        
-                        if (d == length) break
-                        d = (d + step).coerceAtMost(length)
+                    } else {
+                        // For very short segments (like a tap/long press), just draw a circle at the spot
+                        drawCanvas?.drawCircle(midX, midY, width / 2f, currentPaint)
+                        currentStrokePoints.add(PointF(midX, midY))
+                        currentStrokeWidths.add(width)
                     }
                 } else if (currentTool == DrawingTool.ERASER) {
                     currentPaint.strokeWidth = currentSize
+                    currentPath.quadTo(lastX, lastY, midX, midY)
+                    currentStrokePoints.add(PointF(midX, midY))
+                    currentStrokeWidths.add(currentSize)
                     drawCanvas?.drawLine(lastMidX, lastMidY, midX, midY, currentPaint)
                     drawCanvas?.drawCircle(midX, midY, currentSize / 2f, currentPaint)
                 } else {

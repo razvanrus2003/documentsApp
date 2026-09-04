@@ -12,19 +12,18 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import com.example.documentsapp.data.DocumentManager
-import com.example.documentsapp.databinding.FragmentEditBinding
+import com.example.documentsapp.databinding.FragmentEditImagesBinding
 import com.example.documentsapp.ui.DocumentViewModel
 import com.example.documentsapp.ui.ImagePageAdapter
 import com.example.documentsapp.utils.ImageUtils
 import com.example.documentsapp.utils.PdfGenerator
 import com.example.documentsapp.utils.applySystemWindowInsetsPadding
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 
-class EditFragment : Fragment() {
+class EditImagesFragment : Fragment() {
 
-    private var _binding: FragmentEditBinding? = null
+    private var _binding: FragmentEditImagesBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: DocumentViewModel by activityViewModels()
@@ -32,11 +31,10 @@ class EditFragment : Fragment() {
     private var snapHelper: PagerSnapHelper? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentEditBinding.inflate(inflater, container, false)
+        _binding = FragmentEditImagesBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -51,15 +49,11 @@ class EditFragment : Fragment() {
 
         binding.buttonCancel.setOnClickListener {
             viewModel.clear()
-            findNavController().popBackStack(R.id.nav_home, inclusive = false)
+            findNavController().popBackStack(R.id.nav_home, false)
         }
 
-        binding.buttonSave.setOnClickListener {
-            saveDocument()
-        }
-
-        binding.buttonExport.setOnClickListener {
-            saveDocument()
+        binding.buttonDone.setOnClickListener {
+            generatePdfAndContinue()
         }
 
         binding.bottomActions.applySystemWindowInsetsPadding(bottom = true)
@@ -78,8 +72,9 @@ class EditFragment : Fragment() {
                 pages = pages,
                 onRotate = { index -> rotatePage(index) },
                 onFilter = { index -> applyFilter(index) },
-                onRetake = { index -> retakePage(index) }
-            ) { index -> deletePage(index) }
+                onRetake = { index -> retakePage(index) },
+                onDelete = { index -> deletePage(index) }
+            )
             binding.recyclerPdfPages.adapter = imageAdapter
         }
     }
@@ -103,14 +98,7 @@ class EditFragment : Fragment() {
         val page = viewModel.pages.value?.get(index) ?: return
         val bitmap = BitmapFactory.decodeStream(requireContext().contentResolver.openInputStream(page.processedUri)) ?: return
         
-        val processedBitmap = if (!page.isGrayScale) {
-            ImageUtils.applyGrayScaleFilter(bitmap)
-        } else {
-            // Re-process from original if we want to toggle back, 
-            // but for simplicity here we just apply again or would need original cache.
-            // User requested "first try B&W", so let's just apply it.
-            ImageUtils.applyGrayScaleFilter(bitmap)
-        }
+        val processedBitmap = ImageUtils.applyGrayScaleFilter(bitmap)
         
         val file = File(requireContext().cacheDir, "filter_${System.currentTimeMillis()}.jpg")
         file.outputStream().use { out ->
@@ -131,7 +119,7 @@ class EditFragment : Fragment() {
         viewModel.removePage(index)
     }
 
-    private fun saveDocument() {
+    private fun generatePdfAndContinue() {
         val pages = viewModel.pages.value ?: return
         if (pages.isEmpty()) {
             Toast.makeText(requireContext(), "No pages to save", Toast.LENGTH_SHORT).show()
@@ -142,10 +130,10 @@ class EditFragment : Fragment() {
         val pdfUri = PdfGenerator.generatePdfFromImages(requireContext(), imageFiles)
         
         if (pdfUri != null) {
-            DocumentManager.saveDocument(requireContext(), pdfUri)
-            Toast.makeText(requireContext(), "Document Saved", Toast.LENGTH_SHORT).show()
-            viewModel.clear()
-            findNavController().popBackStack(R.id.nav_home, inclusive = false)
+            val bundle = Bundle().apply {
+                putString("documentUri", pdfUri.toString())
+            }
+            findNavController().navigate(R.id.nav_pdf_view, bundle)
         }
     }
 

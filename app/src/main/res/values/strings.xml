@@ -35,9 +35,11 @@
     <string name="action_add_signature">Add Signature</string>
     <string name="action_add_text">Add Text</string>
     <string name="action_save">Save</string>
+    <string name="action_share">Share</string>
     <string name="action_create">Create</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_export">Export PDF</string>
+    <string name="action_rename">Rename</string>
 
     <!-- Signature Page -->
     <string name="signature_canvas_hint">Draw your signature here</string>
@@ -111,8 +113,17 @@
     <string name="placeholder_locality">e.g. San Francisco</string>
     <string name="placeholder_state">e.g. CA</string>
     <string name="placeholder_country">e.g. US</string>
+    <string name="sig_file_name_placeholder">sig_%1$s</string>
     <string name="action_more_optional_fields">More optional fields</string>
     <string name="action_less_optional_fields">Less optional fields</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_rename_title">Rename Document</string>
+    <string name="dialog_password_title">Enter Signature Password</string>
+    <string name="error_invalid_password">Invalid password. Please try again.</string>
+    <string name="label_enter_password">Password</string>
+    <string name="label_new_name">New Name</string>
+
     <string name="digital_signature_help_text">
         A digital signature is a mathematical technique used to validate the authenticity and integrity of a digital document. It is the digital equivalent of a handwritten signature or stamped seal, but it offers far more inherent security.\n\n
         &lt;b&gt;How it works:&lt;/b&gt;\n

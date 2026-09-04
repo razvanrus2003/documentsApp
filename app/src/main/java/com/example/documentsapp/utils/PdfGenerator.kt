@@ -1,7 +1,6 @@
 package com.example.documentsapp.utils
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
@@ -26,7 +25,7 @@ object PdfGenerator {
                 pdfDocument.finishPage(page)
             }
             
-            val outputFile = File(context.cacheDir, "generated_document_${System.currentTimeMillis()}.pdf")
+            val outputFile = File(context.cacheDir, "untitled_document_${System.currentTimeMillis()}.pdf")
             pdfDocument.writeTo(FileOutputStream(outputFile))
             return Uri.fromFile(outputFile)
         } catch (e: IOException) {
