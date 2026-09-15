@@ -254,39 +254,38 @@ class CameraFragment : Fragment() {
             lastDetectedQuad = if (result.isDetected) quad else null
 
             activity?.runOnUiThread {
-                if (_binding != null) {
-                    binding.textStatus.text = if (result.isDetected) "Document Detected" else "Searching..."
-                    binding.textStatus.setTextColor(if (result.isDetected) android.graphics.Color.GREEN else android.graphics.Color.WHITE)
-                    
-                    binding.cameraOverlay.setDetectionState(result.isDetected)
-                    
-                    val rotation = imageProxy.imageInfo.rotationDegrees
-                    val mappedPoints = quad.map { p ->
-                        val x: Float
-                        val y: Float
-                        
-                        when (rotation) {
-                            90 -> {
-                                x = (1 - p.y / analysisHeight) * binding.cameraOverlay.width
-                                y = (p.x / analysisWidth) * binding.cameraOverlay.height
-                            }
-                            270 -> {
-                                x = (p.y / analysisHeight) * binding.cameraOverlay.width
-                                y = (1 - p.x / analysisWidth) * binding.cameraOverlay.height
-                            }
-                            180 -> {
-                                x = (1 - p.x / analysisWidth) * binding.cameraOverlay.width
-                                y = (1 - p.y / analysisHeight) * binding.cameraOverlay.height
-                            }
-                            else -> {
-                                x = (p.x / analysisWidth) * binding.cameraOverlay.width
-                                y = (p.y / analysisHeight) * binding.cameraOverlay.height
-                            }
+                val currentBinding = _binding ?: return@runOnUiThread
+                currentBinding.textStatus.text = if (result.isDetected) "Document Detected" else "Searching..."
+                currentBinding.textStatus.setTextColor(if (result.isDetected) android.graphics.Color.GREEN else android.graphics.Color.WHITE)
+                
+                currentBinding.cameraOverlay.setDetectionState(result.isDetected)
+                
+                val rotation = imageProxy.imageInfo.rotationDegrees
+                val mappedPoints = quad.map { p ->
+                    val x: Float
+                    val y: Float
+                    val p_y = ((p.y - analysisHeight / 2) * 1.5 + analysisHeight/2).toFloat();
+                    when (rotation) {
+                        90 -> {
+                            x = (1 - p_y / analysisHeight) * currentBinding.cameraOverlay.width
+                            y = (p.x / analysisWidth) * currentBinding.cameraOverlay.height
                         }
-                        PointF(x, y)
+                        270 -> {
+                            x = (p.y / analysisHeight) * currentBinding.cameraOverlay.width
+                            y = (1 - p.x / analysisWidth) * currentBinding.cameraOverlay.height
+                        }
+                        180 -> {
+                            x = (1 - p.x / analysisWidth) * currentBinding.cameraOverlay.width
+                            y = (1 - p.y / analysisHeight) * currentBinding.cameraOverlay.height
+                        }
+                        else -> {
+                            x = (p.x / analysisWidth) * currentBinding.cameraOverlay.width
+                            y = (p.y / analysisHeight) * currentBinding.cameraOverlay.height
+                        }
                     }
-                    binding.cameraOverlay.updateDetectedPoints(mappedPoints)
+                    PointF(x, y)
                 }
+                currentBinding.cameraOverlay.updateDetectedPoints(mappedPoints)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error during image analysis", e)

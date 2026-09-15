@@ -8,12 +8,12 @@
 
     <ImageView
         android:id="@+id/image_page"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
-        app:layout_constrainedWidth="true"
+        app:layout_constraintDimensionRatio="1240:1754"
         app:layout_constraintHeight_percent="0.85"
         app:layout_constraintBottom_toTopOf="@id/page_actions"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,10 +25,8 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_page_delete_corner"
         style="@style/Widget.Material3.Button.TonalButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:insetLeft="0dp"
         android:insetTop="0dp"
         android:insetRight="0dp"
@@ -36,13 +34,15 @@
         android:padding="0dp"
         android:minWidth="0dp"
         android:minHeight="0dp"
-        app:cornerRadius="12dp"
-        app:elevation="8dp"
+        app:cornerRadius="14dp"
+        app:elevation="4dp"
         app:icon="@android:drawable/ic_menu_close_clear_cancel"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
-        app:iconSize="14dp"
+        app:iconSize="16dp"
+        app:layout_constraintBottom_toTopOf="@id/image_page"
         app:layout_constraintEnd_toEndOf="@id/image_page"
+        app:layout_constraintStart_toEndOf="@id/image_page"
         app:layout_constraintTop_toTopOf="@id/image_page" />
 
     <LinearLayout

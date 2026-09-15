@@ -10,6 +10,9 @@ import kotlin.math.*
 
 object ImageUtils {
     
+    private const val TARGET_WIDTH = 1240
+    private const val TARGET_HEIGHT = 1754
+    
     fun applyEnhancements(bitmap: Bitmap): Bitmap {
         val src = Mat()
         Utils.bitmapToMat(bitmap, src)
@@ -142,7 +145,9 @@ object ImageUtils {
     fun cropAndEnhance(bitmap: Bitmap, corners: List<PointF>): Bitmap {
         var processed = deskewBitmap(bitmap, corners)
         processed = applyEnhancements(processed)
-        return ensurePortraitOrientation(processed)
+        val portrait = ensurePortraitOrientation(processed)
+        
+        return Bitmap.createScaledBitmap(portrait, TARGET_WIDTH, TARGET_HEIGHT, true)
     }
 
     /**
