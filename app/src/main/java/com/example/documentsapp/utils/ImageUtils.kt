@@ -42,16 +42,20 @@ object ImageUtils {
         return result
     }
 
-    fun applyGrayScaleFilter(bitmap: Bitmap): Bitmap {
+    fun applyBlackAndWhiteFilter(bitmap: Bitmap, threshold: Double = -1.0): Bitmap {
         val src = Mat()
         Utils.bitmapToMat(bitmap, src)
         
         val gray = Mat()
         Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY)
         
-        // Thresholding for B&W look
+        // Global thresholding using Otsu's binarization method or custom threshold
         val bw = Mat()
-        Imgproc.adaptiveThreshold(gray, bw, 255.0, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2.0)
+        if (threshold < 0.0) {
+            Imgproc.threshold(gray, bw, 0.0, 255.0, Imgproc.THRESH_BINARY or Imgproc.THRESH_OTSU)
+        } else {
+            Imgproc.threshold(gray, bw, threshold, 255.0, Imgproc.THRESH_BINARY)
+        }
         
         val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
         Imgproc.cvtColor(bw, src, Imgproc.COLOR_GRAY2RGB)
@@ -60,6 +64,153 @@ object ImageUtils {
         src.release()
         gray.release()
         bw.release()
+        
+        return result
+    }
+
+    fun applyBlurRemover(bitmap: Bitmap): Bitmap {
+        val src = Mat()
+        Utils.bitmapToMat(bitmap, src)
+        
+        val kernel = Mat(3, 3, CvType.CV_32F)
+        kernel.put(0, 0, 0.0, -1.0, 0.0, -1.0, 5.0, -1.0, 0.0, -1.0, 0.0)
+        
+        val dst = Mat()
+        Imgproc.filter2D(src, dst, src.depth(), kernel)
+        
+        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(dst, result)
+        
+        src.release()
+        dst.release()
+        kernel.release()
+        
+        return result
+    }
+
+    fun applyEqualizer(bitmap: Bitmap): Bitmap {
+        val src = Mat()
+        Utils.bitmapToMat(bitmap, src)
+        
+        val lab = Mat()
+        Imgproc.cvtColor(src, lab, Imgproc.COLOR_RGB2Lab)
+        
+        val channels = mutableListOf<Mat>()
+        Core.split(lab, channels)
+        
+        // Simple histogram equalization on the L channel
+        Imgproc.equalizeHist(channels[0], channels[0])
+        
+        Core.merge(channels, lab)
+        Imgproc.cvtColor(lab, src, Imgproc.COLOR_Lab2RGB)
+        
+        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(src, result)
+        
+        src.release()
+        lab.release()
+        channels.forEach { it.release() }
+        
+        return result
+    }
+
+    fun applyGreyscaleFilter(bitmap: Bitmap): Bitmap {
+        val src = Mat()
+        Utils.bitmapToMat(bitmap, src)
+        
+        val gray = Mat()
+        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY)
+        
+        val dst = Mat()
+        Imgproc.cvtColor(gray, dst, Imgproc.COLOR_GRAY2RGB)
+        
+        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(dst, result)
+        
+        src.release()
+        gray.release()
+        dst.release()
+        
+        return result
+    }
+
+    fun applyInvertFilter(bitmap: Bitmap): Bitmap {
+        val src = Mat()
+        Utils.bitmapToMat(bitmap, src)
+        
+        val dst = Mat()
+        Core.bitwise_not(src, dst)
+        
+        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(dst, result)
+        
+        src.release()
+        dst.release()
+        
+        return result
+    }
+
+    fun applySketchFilter(bitmap: Bitmap): Bitmap {
+        val src = Mat()
+        Utils.bitmapToMat(bitmap, src)
+        
+        val gray = Mat()
+        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY)
+        
+        val inv = Mat()
+        Core.bitwise_not(gray, inv)
+        
+        val blur = Mat()
+        Imgproc.GaussianBlur(inv, blur, Size(21.0, 21.0), 0.0)
+        
+        val invBlur = Mat()
+        Core.bitwise_not(blur, invBlur)
+        
+        val sketch = Mat()
+        Core.divide(gray, invBlur, sketch, 256.0)
+        
+        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        Imgproc.cvtColor(sketch, src, Imgproc.COLOR_GRAY2RGB)
+        Utils.matToBitmap(src, result)
+        
+        src.release()
+        gray.release()
+        inv.release()
+        blur.release()
+        invBlur.release()
+        sketch.release()
+        
+        return result
+    }
+
+    fun applyBrightnessFilter(bitmap: Bitmap): Bitmap {
+        val src = Mat()
+        Utils.bitmapToMat(bitmap, src)
+        
+        val dst = Mat()
+        src.convertTo(dst, -1, 1.0, 30.0)
+        
+        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(dst, result)
+        
+        src.release()
+        dst.release()
+        
+        return result
+    }
+
+    fun applyContrastFilter(bitmap: Bitmap): Bitmap {
+        val src = Mat()
+        Utils.bitmapToMat(bitmap, src)
+        
+        val dst = Mat()
+        src.convertTo(dst, -1, 1.5, 0.0)
+        
+        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(dst, result)
+        
+        src.release()
+        dst.release()
         
         return result
     }

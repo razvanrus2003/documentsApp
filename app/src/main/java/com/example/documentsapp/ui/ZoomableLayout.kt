@@ -14,12 +14,20 @@ class ZoomableLayout @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    private var scaleFactor = 1.0f
-    private var translateX = 0f
-    private var translateY = 0f
+    var signatureOverlayView: SignatureOverlayView? = null
+    var isZoomLocked = false
+
+    var scaleFactor = 1.0f
+        set(value) {
+            field = value.coerceIn(1.0f, 5.0f)
+            invalidate()
+        }
+    var translateX = 0f
+    var translateY = 0f
 
     private val scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
+            if (isZoomLocked) return false
             scaleFactor *= detector.scaleFactor
             scaleFactor = scaleFactor.coerceIn(1.0f, 5.0f)
             invalidate()
@@ -29,6 +37,7 @@ class ZoomableLayout @JvmOverloads constructor(
 
     private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+            if (isZoomLocked) return false
             if (scaleFactor > 1.0f) {
                 translateX -= distanceX
                 translateY -= distanceY
@@ -46,6 +55,7 @@ class ZoomableLayout @JvmOverloads constructor(
         }
 
         override fun onDoubleTap(e: MotionEvent): Boolean {
+            if (isZoomLocked) return false
             if (scaleFactor > 1.0f) {
                 scaleFactor = 1.0f
                 translateX = 0f
@@ -59,11 +69,21 @@ class ZoomableLayout @JvmOverloads constructor(
     })
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (isZoomLocked) {
+            return super.dispatchTouchEvent(ev)
+        }
+
+        val overlay = signatureOverlayView
+        val hasUnplaced = overlay != null && overlay.visibility == VISIBLE && overlay.hasActiveUnplacedSignature()
+        val onSignature = hasUnplaced && overlay.contains(ev.x, ev.y)
+
+        if (onSignature) {
+            return super.dispatchTouchEvent(ev)
+        }
+
         scaleDetector.onTouchEvent(ev)
         gestureDetector.onTouchEvent(ev)
         
-        // Crucial: Let children (RecyclerView) handle their touches, 
-        // but tell parent we are interested if we are zoomed in.
         val handled = super.dispatchTouchEvent(ev)
         return handled || scaleFactor > 1.0f
     }

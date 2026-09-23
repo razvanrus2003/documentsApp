@@ -6,89 +6,148 @@
     android:layout_height="match_parent"
     tools:context=".EditFragment">
 
+    <LinearLayout
+        android:id="@+id/layout_bw_threshold"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        android:background="?attr/colorSurfaceContainer"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_bw_threshold"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <SeekBar
+            android:id="@+id/seekbar_bw_threshold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="255"
+            android:progress="128"/>
+
+        <TextView
+            android:id="@+id/text_bw_threshold_value"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="128"/>
+
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_pdf_pages"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="0dp"
         android:background="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_actions"
+        app:layout_constraintBottom_toTopOf="@+id/scroll_page_actions"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/layout_bw_threshold" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_filters"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="@id/recycler_pdf_pages"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <HorizontalScrollView
+        android:id="@+id/scroll_page_actions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/bottom_actions_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="8dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_page_rotate"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/action_rotate"
+                app:icon="@android:drawable/ic_menu_rotate" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_page_filter"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/action_filter"
+                app:icon="@android:drawable/ic_menu_manage" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_page_retake"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="@string/action_retake"
+                app:icon="@android:drawable/ic_menu_camera" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <LinearLayout
-        android:id="@+id/bottom_actions"
+        android:id="@+id/bottom_actions_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_add_page"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            app:icon="@android:drawable/ic_input_add"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconSize="32dp" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_cancel"
             style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
             android:layout_marginEnd="8dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            app:icon="@android:drawable/ic_menu_close_clear_cancel"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconSize="32dp" />
+            android:text="@string/action_cancel"
+            app:icon="@android:drawable/ic_menu_close_clear_cancel" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_save"
             style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
             android:layout_marginEnd="8dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            app:icon="@android:drawable/ic_menu_save"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconSize="32dp" />
+            android:text="@string/action_save"
+            app:icon="@android:drawable/ic_menu_save" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_export"
             style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_weight="1"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            app:icon="@android:drawable/ic_menu_share"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconSize="32dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:text="@string/action_export"
+            app:icon="@android:drawable/ic_menu_share" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

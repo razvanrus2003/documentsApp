@@ -40,10 +40,18 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_export">Export PDF</string>
     <string name="action_rename">Rename</string>
+    <string name="action_filter">Filter</string>
+    <string name="action_apply_filter">Apply Filter</string>
+    <string name="action_close_filters">Close Filters</string>
+    <string name="action_scan_page">Scan Page</string>
+    <string name="action_view_pdf">View PDF</string>
+    <string name="label_bw_threshold">B&amp;W Threshold</string>
+    <string name="action_retake">Retake</string>
 
     <!-- Signature Page -->
     <string name="signature_canvas_hint">Draw your signature here</string>
     <string name="action_import_signature">Import Signature</string>
+    <string name="action_place_signature">Place Signature</string>
     <string name="action_clear">Clear</string>
     <string name="action_done">Done</string>
     <string name="action_import_signature_file">Import Signature File</string>

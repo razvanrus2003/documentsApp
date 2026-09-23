@@ -12,20 +12,24 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import kotlin.math.atan2
 
+data class PlacedSignature(
+    val svgContent: String,
+    val bitmap: Bitmap,
+    var posX: Float,
+    var posY: Float,
+    var scale: Float,
+    var rotation: Float,
+    var isPlaced: Boolean
+)
+
 class SignatureOverlayView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    var posX = 100f
-    var posY = 100f
-    var scale = 1.0f
-    var signatureRotation = 0f
-    
-    var signatureBitmap: Bitmap? = null
-        private set
-        
+    val signatures = mutableListOf<PlacedSignature>()
+
     private val matrix = Matrix()
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
 
@@ -49,8 +53,10 @@ class SignatureOverlayView @JvmOverloads constructor(
 
     private val scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
-            scale *= detector.scaleFactor
-            scale = scale.coerceIn(0.1f, 10.0f)
+            val active = getActiveSignature() ?: return false
+            if (active.isPlaced) return false
+            active.scale *= detector.scaleFactor
+            active.scale = active.scale.coerceIn(0.1f, 10.0f)
             invalidate()
             return true
         }
@@ -59,58 +65,71 @@ class SignatureOverlayView @JvmOverloads constructor(
     private var initialRotation = 0f
     private var isRotating = false
 
-    fun setSignature(bitmap: Bitmap, containerWidth: Int, containerHeight: Int) {
-        this.signatureBitmap = bitmap
-        posX = (containerWidth - bitmap.width) / 2f
-        posY = (containerHeight - bitmap.height) / 2f
-        scale = 1.0f
-        signatureRotation = 0f
+    fun getActiveSignature(): PlacedSignature? {
+        return if (signatures.isNotEmpty() && !signatures.last().isPlaced) signatures.last() else null
+    }
+
+    fun addSignature(bitmap: Bitmap, svgContent: String, containerWidth: Int, containerHeight: Int) {
+        val posX = (containerWidth - bitmap.width) / 2f
+        val posY = (containerHeight - bitmap.height) / 2f
+        val sig = PlacedSignature(svgContent, bitmap, posX, posY, 1.0f, 0f, false)
+        signatures.add(sig)
+        visibility = VISIBLE
         invalidate()
     }
 
-    fun setPosition(x: Float, y: Float) {
-        posX = x - (signatureBitmap?.width?.div(2f) ?: 0f)
-        posY = y - (signatureBitmap?.height?.div(2f) ?: 0f)
+    fun placeActiveSignature(): Boolean {
+        val active = getActiveSignature() ?: return false
+        active.isPlaced = true
         invalidate()
+        return true
+    }
+
+    fun hasActiveUnplacedSignature(): Boolean {
+        return getActiveSignature() != null
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        signatureBitmap?.let { bitmap ->
+        for (sig in signatures) {
+            val bitmap = sig.bitmap
             val bw = bitmap.width.toFloat()
             val bh = bitmap.height.toFloat()
             
             matrix.reset()
             matrix.postTranslate(-bw / 2f, -bh / 2f)
-            matrix.postScale(scale, scale)
-            matrix.postRotate(signatureRotation)
-            matrix.postTranslate(posX + bw / 2f, posY + bh / 2f)
+            matrix.postScale(sig.scale, sig.scale)
+            matrix.postRotate(sig.rotation)
+            matrix.postTranslate(sig.posX + bw / 2f, sig.posY + bh / 2f)
             canvas.drawBitmap(bitmap, matrix, paint)
             
-            // Draw border and handles
-            val corners = floatArrayOf(
-                0f, 0f,
-                bw, 0f,
-                bw, bh,
-                0f, bh
-            )
-            matrix.mapPoints(corners)
-            
-            canvas.drawLine(corners[0], corners[1], corners[2], corners[3], borderPaint)
-            canvas.drawLine(corners[2], corners[3], corners[4], corners[5], borderPaint)
-            canvas.drawLine(corners[4], corners[5], corners[6], corners[7], borderPaint)
-            canvas.drawLine(corners[6], corners[7], corners[0], corners[1], borderPaint)
-            
-            // Handles
-            for (i in 0 until 4) {
-                val cx = corners[i * 2]
-                val cy = corners[i * 2 + 1]
-                canvas.drawRect(cx - handleSize / 2, cy - handleSize / 2, cx + handleSize / 2, cy + handleSize / 2, handlePaint)
+            if (!sig.isPlaced && sig == getActiveSignature()) {
+                val corners = floatArrayOf(
+                    0f, 0f,
+                    bw, 0f,
+                    bw, bh,
+                    0f, bh
+                )
+                matrix.mapPoints(corners)
+                
+                canvas.drawLine(corners[0], corners[1], corners[2], corners[3], borderPaint)
+                canvas.drawLine(corners[2], corners[3], corners[4], corners[5], borderPaint)
+                canvas.drawLine(corners[4], corners[5], corners[6], corners[7], borderPaint)
+                canvas.drawLine(corners[6], corners[7], corners[0], corners[1], borderPaint)
+                
+                for (i in 0 until 4) {
+                    val cx = corners[i * 2]
+                    val cy = corners[i * 2 + 1]
+                    canvas.drawRect(cx - handleSize / 2, cy - handleSize / 2, cx + handleSize / 2, cy + handleSize / 2, handlePaint)
+                }
             }
         }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        val active = getActiveSignature() ?: return false
+        if (active.isPlaced) return false
+
         scaleDetector.onTouchEvent(event)
 
         val pointerCount = event.pointerCount
@@ -123,7 +142,7 @@ class SignatureOverlayView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_POINTER_DOWN -> {
                 if (pointerCount == 2) {
-                    initialRotation = signatureRotation - getAngle(event)
+                    initialRotation = active.rotation - getAngle(event)
                     isRotating = true
                 }
             }
@@ -137,8 +156,8 @@ class SignatureOverlayView @JvmOverloads constructor(
                         val dx = x - lastTouchX
                         val dy = y - lastTouchY
 
-                        posX += dx
-                        posY += dy
+                        active.posX += dx
+                        active.posY += dy
 
                         lastTouchX = x
                         lastTouchY = y
@@ -146,7 +165,7 @@ class SignatureOverlayView @JvmOverloads constructor(
                 }
                 
                 if (pointerCount == 2 && isRotating) {
-                    signatureRotation = initialRotation + getAngle(event)
+                    active.rotation = initialRotation + getAngle(event)
                 }
                 invalidate()
             }
@@ -179,15 +198,25 @@ class SignatureOverlayView @JvmOverloads constructor(
         return Math.toDegrees(radians).toFloat()
     }
 
-    fun getSignatureMatrix(): Matrix {
+    fun contains(x: Float, y: Float): Boolean {
+        val active = getActiveSignature() ?: return false
+        val bitmap = active.bitmap
+        val bw = bitmap.width.toFloat()
+        val bh = bitmap.height.toFloat()
+        
         val mat = Matrix()
-        signatureBitmap?.let { bitmap ->
-            mat.postTranslate(-bitmap.width / 2f, -bitmap.height / 2f)
-            mat.postScale(scale, scale)
-            mat.postRotate(signatureRotation)
-            mat.postTranslate(posX + bitmap.width / 2f, posY + bitmap.height / 2f)
+        mat.postTranslate(-bw / 2f, -bh / 2f)
+        mat.postScale(active.scale, active.scale)
+        mat.postRotate(active.rotation)
+        mat.postTranslate(active.posX + bw / 2f, active.posY + bh / 2f)
+        
+        val inverseMat = Matrix()
+        if (mat.invert(inverseMat)) {
+            val pts = floatArrayOf(x, y)
+            inverseMat.mapPoints(pts)
+            return pts[0] in 0f..bw && pts[1] in 0f..bh
         }
-        return mat
+        return false
     }
 
     override fun performClick(): Boolean {

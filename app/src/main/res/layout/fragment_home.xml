@@ -41,7 +41,7 @@
 
     <LinearLayout
         android:id="@+id/layout_home_actions"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"

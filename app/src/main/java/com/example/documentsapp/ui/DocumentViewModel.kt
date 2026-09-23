@@ -17,6 +17,10 @@ class DocumentViewModel : ViewModel() {
     val pages: LiveData<MutableList<PageItem>> = _pages
 
     var retakePageIndex: Int = -1
+    var pdfZoomScale: Float = 1.0f
+    var pdfTranslateX: Float = 0f
+    var pdfTranslateY: Float = 0f
+    var savedSignatures = mutableListOf<PlacedSignature>()
 
     fun addPage(page: PageItem) {
         val current = _pages.value?.toMutableList() ?: mutableListOf()
@@ -48,5 +52,9 @@ class DocumentViewModel : ViewModel() {
     fun clear() {
         _pages.value = mutableListOf()
         retakePageIndex = -1
+        pdfZoomScale = 1.0f
+        pdfTranslateX = 0f
+        pdfTranslateY = 0f
+        savedSignatures.clear()
     }
 }

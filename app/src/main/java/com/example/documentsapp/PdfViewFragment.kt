@@ -71,6 +71,19 @@ class PdfViewFragment : Fragment() {
             }
         }
 
+        binding.zoomContainer.scaleFactor = viewModel.pdfZoomScale
+        binding.zoomContainer.translateX = viewModel.pdfTranslateX
+        binding.zoomContainer.translateY = viewModel.pdfTranslateY
+
+        if (viewModel.savedSignatures.isNotEmpty()) {
+            binding.signatureOverlay.signatures.clear()
+            binding.signatureOverlay.signatures.addAll(viewModel.savedSignatures)
+            binding.signatureOverlay.visibility = View.VISIBLE
+            if (binding.signatureOverlay.hasActiveUnplacedSignature()) {
+                showSignaturePlacementMode()
+            }
+        }
+
         binding.textFileName.setOnClickListener {
             startInlineRename()
         }
@@ -91,6 +104,10 @@ class PdfViewFragment : Fragment() {
         }
 
         binding.buttonAddSignature.setOnClickListener {
+            viewModel.pdfZoomScale = binding.zoomContainer.scaleFactor
+            viewModel.pdfTranslateX = binding.zoomContainer.translateX
+            viewModel.pdfTranslateY = binding.zoomContainer.translateY
+            viewModel.savedSignatures = binding.signatureOverlay.signatures
             val bundle = Bundle().apply { putString("origin", "edit") }
             findNavController().navigate(R.id.nav_signature, bundle)
         }
@@ -108,6 +125,19 @@ class PdfViewFragment : Fragment() {
 
         binding.buttonSaveSigned.setOnClickListener {
             flattenAndSave()
+        }
+
+        binding.zoomContainer.signatureOverlayView = binding.signatureOverlay
+
+        binding.buttonPlaceSignature.setOnClickListener {
+            if (binding.signatureOverlay.placeActiveSignature()) {
+                binding.zoomContainer.isZoomLocked = false
+                binding.buttonPlaceSignature.visibility = View.GONE
+                binding.buttonAddSignature.visibility = View.VISIBLE
+                binding.buttonShare.visibility = View.VISIBLE
+                binding.buttonSaveSigned.visibility = View.VISIBLE
+                Toast.makeText(requireContext(), "Signature placed", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.bottomActions.applySystemWindowInsetsPadding(bottom = true)
@@ -274,9 +304,6 @@ class PdfViewFragment : Fragment() {
         val pdfDocument = android.graphics.pdf.PdfDocument()
         
         val overlay = binding.signatureOverlay
-        val overlayMatrix = overlay.getSignatureMatrix()
-        
-        // Use the current width of the recycler to calculate scale
         val viewWidth = binding.recyclerPdfPages.width.toFloat()
         
         for (i in 0 until renderer.pageCount) {
@@ -291,22 +318,26 @@ class PdfViewFragment : Fragment() {
             
             canvas.drawBitmap(bitmap, 0f, 0f, null)
             
-            if (signaturePageIndices.contains(i)) {
-                appliedSignatureContent?.let { svgContent ->
+            for (sig in overlay.signatures) {
+                if (sig.isPlaced) {
                     canvas.save()
-                    
-                    // The view height depends on aspect ratio of the page
-                    val viewHeight = viewWidth * (page.height.toFloat() / page.width.toFloat())
                     val scaleToPdf = page.width.toFloat() / viewWidth
-                    
                     canvas.scale(scaleToPdf, scaleToPdf)
-                    canvas.concat(overlayMatrix)
+                    
+                    val bw = sig.bitmap.width.toFloat()
+                    val bh = sig.bitmap.height.toFloat()
+                    val mat = android.graphics.Matrix()
+                    mat.postTranslate(-bw / 2f, -bh / 2f)
+                    mat.postScale(sig.scale, sig.scale)
+                    mat.postRotate(sig.rotation)
+                    mat.postTranslate(sig.posX + bw / 2f, sig.posY + bh / 2f)
+                    canvas.concat(mat)
                     
                     SvgUtils.renderSvgToCanvas(
-                        canvas, 
-                        svgContent, 
-                        overlay.signatureBitmap?.width?.toFloat() ?: 200f, 
-                        overlay.signatureBitmap?.height?.toFloat() ?: 100f
+                        canvas,
+                        sig.svgContent,
+                        bw,
+                        bh
                     )
                     canvas.restore()
                 }
@@ -362,24 +393,17 @@ class PdfViewFragment : Fragment() {
                     binding.signatureOverlay.visibility = View.VISIBLE
                     isSignatureApplied = true
                     isDigitalSignature = false
+                    showSignaturePlacementMode()
                     
                     val layoutManager = binding.recyclerPdfPages.layoutManager as LinearLayoutManager
                     val currentPos = layoutManager.findFirstVisibleItemPosition().coerceAtLeast(0)
                     signaturePageIndices.clear() // Only one signature for now
                     signaturePageIndices.add(currentPos)
                     
-                    // Delay until next frame to ensure layout is updated if needed, 
-                    // or just use recycler width
                     binding.recyclerPdfPages.post {
-                        val itemView = layoutManager.findViewByPosition(currentPos)
                         val viewWidth = binding.recyclerPdfPages.width
-                        val viewHeight = if (itemView != null) itemView.height else binding.recyclerPdfPages.height
-                        
-                        binding.signatureOverlay.setSignature(bitmap, viewWidth, viewHeight)
-                        if (itemView != null) {
-                            binding.signatureOverlay.translationY = itemView.top.toFloat()
-                        }
-                        binding.signatureOverlay.setPosition(viewWidth / 2f, viewHeight / 2f)
+                        val viewHeight = binding.recyclerPdfPages.height
+                        binding.signatureOverlay.addSignature(bitmap, svgContent, viewWidth, viewHeight)
                     }
                 } catch (exc: Exception) {
                     exc.printStackTrace()
@@ -409,6 +433,7 @@ class PdfViewFragment : Fragment() {
                     appliedSignaturePassword = password
                     binding.layoutSignatureStatus.visibility = View.VISIBLE
                     binding.textSignatureStatus.text = "Digitally Signed with ${p12File.name} (pending save)"
+                    showSignaturePlacementMode()
                     Toast.makeText(requireContext(), "Digital signature applied", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(requireContext(), R.string.error_invalid_password, Toast.LENGTH_LONG).show()
@@ -416,6 +441,14 @@ class PdfViewFragment : Fragment() {
             }
             .setNegativeButton(R.string.action_cancel, null)
             .show()
+    }
+
+    private fun showSignaturePlacementMode() {
+        binding.zoomContainer.isZoomLocked = true
+        binding.buttonAddSignature.visibility = View.GONE
+        binding.buttonShare.visibility = View.GONE
+        binding.buttonSaveSigned.visibility = View.GONE
+        binding.buttonPlaceSignature.visibility = View.VISIBLE
     }
 
     private fun verifyPassword(p12File: File, password: CharArray): Boolean {

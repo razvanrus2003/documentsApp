@@ -150,15 +150,14 @@
             app:iconGravity="textStart"
             app:iconPadding="0dp" />
 
-<!--        <com.google.android.material.button.MaterialButton-->
-<!--            android:id="@+id/button_save_signed"-->
-<!--            style="@style/Widget.Material3.Button.IconButton"-->
-<!--            android:layout_width="48dp"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:contentDescription="Save"-->
-<!--            app:icon="@android:drawable/ic_menu_edit"-->
-<!--            app:iconGravity="textStart"-->
-<!--            app:iconPadding="0dp" />-->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_place_signature"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:text="@string/action_place_signature"
+            android:visibility="gone"
+            app:icon="@android:drawable/ic_menu_send" />
 
     </LinearLayout>
 

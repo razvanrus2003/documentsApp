@@ -6,21 +6,24 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.example.documentsapp.data.DocumentManager
 import com.example.documentsapp.databinding.FragmentEditBinding
 import com.example.documentsapp.ui.DocumentViewModel
+import com.example.documentsapp.ui.FilterAdapter
+import com.example.documentsapp.ui.FilterItem
+import com.example.documentsapp.ui.FilterType
 import com.example.documentsapp.ui.ImagePageAdapter
 import com.example.documentsapp.utils.ImageUtils
 import com.example.documentsapp.utils.PdfGenerator
 import com.example.documentsapp.utils.applySystemWindowInsetsPadding
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 class EditFragment : Fragment() {
 
@@ -30,6 +33,11 @@ class EditFragment : Fragment() {
     private val viewModel: DocumentViewModel by activityViewModels()
     private var imageAdapter: ImagePageAdapter? = null
     private var snapHelper: PagerSnapHelper? = null
+
+    private var preFilterUri: Uri? = null
+    private var currentPreviewFilter: FilterType? = null
+    private var filterSessionPageIndex: Int = -1
+    private var bwThreshold: Double = -1.0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,10 +53,6 @@ class EditFragment : Fragment() {
 
         setupRecyclerView()
 
-        binding.buttonAddPage.setOnClickListener {
-            findNavController().navigate(R.id.nav_camera)
-        }
-
         binding.buttonCancel.setOnClickListener {
             viewModel.clear()
             findNavController().popBackStack(R.id.nav_home, inclusive = false)
@@ -62,7 +66,124 @@ class EditFragment : Fragment() {
             saveDocument()
         }
 
-        binding.bottomActions.applySystemWindowInsetsPadding(bottom = true)
+        binding.buttonPageRotate.setOnClickListener {
+            val index = getCurrentPageIndex()
+            if (index != RecyclerView.NO_POSITION) {
+                rotatePage(index)
+            }
+        }
+
+        binding.buttonPageFilter.setOnClickListener {
+            if (binding.recyclerFilters.isVisible) {
+                if (currentPreviewFilter != null) {
+                    commitFilterKeepOpen()
+                } else {
+                    commitFilter()
+                    binding.recyclerFilters.isVisible = false
+                    binding.layoutBwThreshold.isVisible = false
+                    updateFilterButtonText()
+                }
+            } else {
+                val index = getCurrentPageIndex()
+                if (index != RecyclerView.NO_POSITION) {
+                    filterSessionPageIndex = index
+                    val page = viewModel.pages.value?.get(index)
+                    preFilterUri = page?.processedUri
+                    currentPreviewFilter = null
+                }
+                setupFilterRecycler()
+                binding.recyclerFilters.isVisible = true
+                updateFilterButtonText()
+            }
+        }
+
+        binding.buttonPageRetake.setOnClickListener {
+            val index = getCurrentPageIndex()
+            if (index != RecyclerView.NO_POSITION) {
+                retakePage(index)
+            }
+        }
+
+        binding.seekbarBwThreshold.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+                binding.textBwThresholdValue.text = progress.toString()
+                if (fromUser && currentPreviewFilter == FilterType.BW) {
+                    bwThreshold = progress.toDouble()
+                    val index = getCurrentPageIndex()
+                    if (index != RecyclerView.NO_POSITION) {
+                        applyFilterAsPreview(index, FilterType.BW)
+                    }
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {}
+        })
+
+        binding.bottomActionsContainer.applySystemWindowInsetsPadding(bottom = true)
+    }
+
+    private fun updateFilterButtonText() {
+        if (!binding.recyclerFilters.isVisible) {
+            binding.buttonPageFilter.text = getString(R.string.action_filter)
+        } else if (currentPreviewFilter == null) {
+            binding.buttonPageFilter.text = getString(R.string.action_close_filters)
+        } else {
+            binding.buttonPageFilter.text = getString(R.string.action_apply_filter)
+        }
+    }
+
+    private fun getCurrentPageIndex(): Int {
+        val layoutManager = binding.recyclerPdfPages.layoutManager as? LinearLayoutManager
+        val view = snapHelper?.findSnapView(layoutManager) ?: return RecyclerView.NO_POSITION
+        return layoutManager?.getPosition(view) ?: RecyclerView.NO_POSITION
+    }
+
+    private fun setupFilterRecycler() {
+        val filters = listOf(
+            FilterItem(FilterType.BW, "B&W", android.R.drawable.ic_menu_gallery),
+            FilterItem(FilterType.BLUR_REMOVER, "Blur Remover", android.R.drawable.ic_menu_gallery),
+            FilterItem(FilterType.EQUALIZER, "Equalizer", android.R.drawable.ic_menu_gallery),
+            FilterItem(FilterType.GREYSCALE, "Greyscale", android.R.drawable.ic_menu_gallery),
+            FilterItem(FilterType.INVERT, "Invert", android.R.drawable.ic_menu_gallery),
+            FilterItem(FilterType.SKETCH, "Sketch", android.R.drawable.ic_menu_gallery),
+            FilterItem(FilterType.BRIGHTNESS, "Brightness", android.R.drawable.ic_menu_gallery),
+            FilterItem(FilterType.CONTRAST, "Contrast", android.R.drawable.ic_menu_gallery)
+        )
+
+        binding.recyclerFilters.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclerFilters.adapter = FilterAdapter(filters) { filterType ->
+            val index = getCurrentPageIndex()
+            if (index != RecyclerView.NO_POSITION) {
+                if (filterSessionPageIndex != index) {
+                    filterSessionPageIndex = index
+                    val page = viewModel.pages.value?.get(index)
+                    preFilterUri = page?.processedUri
+                    currentPreviewFilter = null
+                }
+
+                if (currentPreviewFilter == filterType) {
+                    if (preFilterUri != null) {
+                        val page = viewModel.pages.value?.get(index)
+                        if (page != null) {
+                            val updatedPage = page.copy(
+                                isGrayScale = false,
+                                processedUri = preFilterUri!!
+                            )
+                            viewModel.updatePage(index, updatedPage)
+                        }
+                    }
+                    currentPreviewFilter = null
+                    bwThreshold = -1.0
+                    binding.layoutBwThreshold.isVisible = false
+                } else {
+                    bwThreshold = if (filterType == FilterType.BW) binding.seekbarBwThreshold.progress.toDouble() else -1.0
+                    applyFilterAsPreview(index, filterType)
+                    currentPreviewFilter = filterType
+                    binding.layoutBwThreshold.isVisible = (filterType == FilterType.BW)
+                }
+                updateFilterButtonText()
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -73,14 +194,16 @@ class EditFragment : Fragment() {
         
         binding.recyclerPdfPages.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
-        viewModel.pages.observe(viewLifecycleOwner) { pages ->
+        if (imageAdapter == null) {
             imageAdapter = ImagePageAdapter(
-                pages = pages,
-                onRotate = { index -> rotatePage(index) },
-                onFilter = { index -> applyFilter(index) },
-                onRetake = { index -> retakePage(index) }
-            ) { index -> deletePage(index) }
+                onDelete = { index -> deletePage(index) },
+                onScanPage = { findNavController().navigate(R.id.nav_camera) }
+            )
             binding.recyclerPdfPages.adapter = imageAdapter
+        }
+
+        viewModel.pages.observe(viewLifecycleOwner) { pages ->
+            imageAdapter?.submitList(pages.toList())
         }
     }
 
@@ -94,32 +217,60 @@ class EditFragment : Fragment() {
             rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
         }
         
-        page.rotationDegrees = (page.rotationDegrees + 90) % 360
-        page.processedUri = Uri.fromFile(file)
-        viewModel.updatePage(index, page)
+        val updatedPage = page.copy(
+            rotationDegrees = (page.rotationDegrees + 90) % 360,
+            processedUri = Uri.fromFile(file)
+        )
+        viewModel.updatePage(index, updatedPage)
     }
 
-    private fun applyFilter(index: Int) {
+    private fun applyFilterAsPreview(index: Int, filterType: FilterType) {
         val page = viewModel.pages.value?.get(index) ?: return
-        val bitmap = BitmapFactory.decodeStream(requireContext().contentResolver.openInputStream(page.processedUri)) ?: return
+        val baseUri = preFilterUri ?: page.processedUri
+        val bitmap = BitmapFactory.decodeStream(requireContext().contentResolver.openInputStream(baseUri)) ?: return
         
-        val processedBitmap = if (!page.isGrayScale) {
-            ImageUtils.applyGrayScaleFilter(bitmap)
-        } else {
-            // Re-process from original if we want to toggle back, 
-            // but for simplicity here we just apply again or would need original cache.
-            // User requested "first try B&W", so let's just apply it.
-            ImageUtils.applyGrayScaleFilter(bitmap)
+        val processedBitmap = when (filterType) {
+            FilterType.BW -> ImageUtils.applyBlackAndWhiteFilter(bitmap, bwThreshold)
+            FilterType.BLUR_REMOVER -> ImageUtils.applyBlurRemover(bitmap)
+            FilterType.EQUALIZER -> ImageUtils.applyEqualizer(bitmap)
+            FilterType.GREYSCALE -> ImageUtils.applyGreyscaleFilter(bitmap)
+            FilterType.INVERT -> ImageUtils.applyInvertFilter(bitmap)
+            FilterType.SKETCH -> ImageUtils.applySketchFilter(bitmap)
+            FilterType.BRIGHTNESS -> ImageUtils.applyBrightnessFilter(bitmap)
+            FilterType.CONTRAST -> ImageUtils.applyContrastFilter(bitmap)
         }
         
-        val file = File(requireContext().cacheDir, "filter_${System.currentTimeMillis()}.jpg")
+        val file = File(requireContext().cacheDir, "filter_${filterType.name}_${System.currentTimeMillis()}.jpg")
         file.outputStream().use { out ->
             processedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
         }
         
-        page.isGrayScale = !page.isGrayScale
-        page.processedUri = Uri.fromFile(file)
-        viewModel.updatePage(index, page)
+        val updatedPage = page.copy(
+            isGrayScale = if (filterType == FilterType.BW || filterType == FilterType.GREYSCALE) true else page.isGrayScale,
+            processedUri = Uri.fromFile(file)
+        )
+        viewModel.updatePage(index, updatedPage)
+    }
+
+    private fun commitFilter() {
+        preFilterUri = null
+        currentPreviewFilter = null
+        filterSessionPageIndex = -1
+        bwThreshold = -1.0
+        binding.layoutBwThreshold.isVisible = false
+        updateFilterButtonText()
+    }
+
+    private fun commitFilterKeepOpen() {
+        val index = getCurrentPageIndex()
+        if (index != RecyclerView.NO_POSITION) {
+            val page = viewModel.pages.value?.get(index)
+            preFilterUri = page?.processedUri
+        }
+        currentPreviewFilter = null
+        bwThreshold = -1.0
+        binding.layoutBwThreshold.isVisible = false
+        updateFilterButtonText()
     }
 
     private fun retakePage(index: Int) {
@@ -132,6 +283,7 @@ class EditFragment : Fragment() {
     }
 
     private fun saveDocument() {
+        commitFilter()
         val pages = viewModel.pages.value ?: return
         if (pages.isEmpty()) {
             Toast.makeText(requireContext(), "No pages to save", Toast.LENGTH_SHORT).show()
@@ -151,6 +303,8 @@ class EditFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        snapHelper?.attachToRecyclerView(null)
+        snapHelper = null
         _binding = null
     }
 }

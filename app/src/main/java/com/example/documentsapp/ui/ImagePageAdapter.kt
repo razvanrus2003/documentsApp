@@ -4,40 +4,64 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.documentsapp.R
 import com.google.android.material.button.MaterialButton
 
 class ImagePageAdapter(
-    private val pages: List<PageItem>,
-    private val onRotate: (Int) -> Unit,
-    private val onFilter: (Int) -> Unit,
-    private val onRetake: (Int) -> Unit,
-    private val onDelete: (Int) -> Unit
-) : RecyclerView.Adapter<ImagePageAdapter.ViewHolder>() {
+    private val onDelete: (Int) -> Unit,
+    private val onScanPage: () -> Unit
+) : ListAdapter<PageItem, RecyclerView.ViewHolder>(PageDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_image_page, parent, false)
-        return ViewHolder(view)
+    companion object {
+        private const val VIEW_TYPE_PAGE = 0
+        private const val VIEW_TYPE_SCAN = 1
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val page = pages[position]
-        holder.imageView.setImageURI(page.processedUri)
-        
-        holder.btnRotate.setOnClickListener { onRotate(position) }
-        holder.btnFilter.setOnClickListener { onFilter(position) }
-        holder.btnRetake.setOnClickListener { onRetake(position) }
-        holder.btnDeleteCorner.setOnClickListener { onDelete(position) }
+    override fun getItemCount(): Int {
+        return super.getItemCount() + 1
     }
 
-    override fun getItemCount(): Int = pages.size
+    override fun getItemViewType(position: Int): Int {
+        return if (position < super.getItemCount()) VIEW_TYPE_PAGE else VIEW_TYPE_SCAN
+    }
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == VIEW_TYPE_SCAN) {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_scan_page, parent, false)
+            ScanViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_image_page, parent, false)
+            PageViewHolder(view)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is PageViewHolder) {
+            val page = getItem(position)
+            holder.imageView.setImageURI(page.processedUri)
+            holder.btnDeleteCorner.setOnClickListener { onDelete(holder.bindingAdapterPosition) }
+        } else if (holder is ScanViewHolder) {
+            holder.itemView.setOnClickListener { onScanPage() }
+        }
+    }
+
+    class PageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.image_page)
-        val btnRotate: MaterialButton = view.findViewById(R.id.button_page_rotate)
-        val btnFilter: MaterialButton = view.findViewById(R.id.button_page_filter)
-        val btnRetake: MaterialButton = view.findViewById(R.id.button_page_retake)
         val btnDeleteCorner: MaterialButton = view.findViewById(R.id.button_page_delete_corner)
+    }
+
+    class ScanViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+    class PageDiffCallback : DiffUtil.ItemCallback<PageItem>() {
+        override fun areItemsTheSame(oldItem: PageItem, newItem: PageItem): Boolean {
+            return oldItem.originalUri == newItem.originalUri
+        }
+
+        override fun areContentsTheSame(oldItem: PageItem, newItem: PageItem): Boolean {
+            return oldItem == newItem
+        }
     }
 }

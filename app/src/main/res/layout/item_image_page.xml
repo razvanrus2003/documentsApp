@@ -15,7 +15,7 @@
         android:scaleType="fitCenter"
         app:layout_constraintDimensionRatio="1240:1754"
         app:layout_constraintHeight_percent="0.85"
-        app:layout_constraintBottom_toTopOf="@id/page_actions"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -44,59 +44,5 @@
         app:layout_constraintEnd_toEndOf="@id/image_page"
         app:layout_constraintStart_toEndOf="@id/image_page"
         app:layout_constraintTop_toTopOf="@id/image_page" />
-
-    <LinearLayout
-        android:id="@+id/page_actions"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingTop="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/image_page"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_page_rotate"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginEnd="12dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:textSize="12sp"
-            android:text="Rotate"
-            app:icon="@android:drawable/ic_menu_rotate"
-            app:iconSize="18dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_page_filter"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginEnd="12dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:textSize="12sp"
-            android:text="B&amp;W"
-            app:icon="@android:drawable/ic_menu_manage"
-            app:iconSize="18dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_page_retake"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:textSize="12sp"
-            android:text="Retake"
-            app:icon="@android:drawable/ic_menu_camera"
-            app:iconSize="18dp" />
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
