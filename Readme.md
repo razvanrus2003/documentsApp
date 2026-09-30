@@ -1,39 +1,47 @@
-# DocumentsApp 📄✨
+# Documents Scanner 📄✨
 
-An advanced, feature-rich Android document scanning, editing, and digital signing application built with modern Android architecture and Jetpack components.
+An advanced, feature-rich document scanning, editing, and digital signing application built for Android architecture.
 
 ---
 
-## 🚀 Strong Features & Core Capabilities
+## 🚀 Core Capabilities
 
 ### 1. 📷 Smart Document Scanning & Edge Detection
-* **Camera Integration:** Seamless document capture using CameraX.
-* **OpenCV Edge Detection:** Automatic document bounding box and edge detection for crisp, professional scans.
-* **Interactive Cropping:** Precise crop overlay view (`CropFragment`) to adjust scan boundaries.
+* Uses phone **Main Camera** for scanning Paper Documents.
+* Supports both **Manual** and **Automatic Cropping**.
+* Uniformly fit and scale the document in A4 pages.
 
 <!-- TODO: Add screenshot of the Camera & Scan Cropping here -->
 
 ---
 
-### 2. 🎛️ Powerful Multi-Page Document Editing
-* **Multi-Page Management:** Add, reorder, rotate (90° increments), and delete pages on the fly using `DocumentViewModel`.
-* **Image Filters:** Apply grayscale, black & white, and custom color filters.
-* **Retake Workflow:** Replace or retake specific scanned pages (`retakePageIndex`) seamlessly.
+### 2. 📄  Powerful Multi-Page Document Editing
+* **Multi-Page Management:** Add, reorder, rotate, and delete pages effortlessly.
+#### Complete list of Filters:
+  - *Black & White*
+  - *Blur Remover*
+  - *Equalizer*
+  - *Greyscale*
+  - *Invert*
+  - *Sketch*
+  - *Brightness*
+  - *Contrast*
 
 <!-- TODO: Add screenshot of the Multi-page Edit & Page Manager here -->
 
 ---
 
-### 3. ✍️ Advanced Signature & PDF Signing Studio
-* **SVG Signature Canvas (`SvgSignatureFragment`):** Draw smooth signatures with multiple tools (Classic Pen, Pencil, Eraser) and export to SVG.
-* **Digital Signatures (P12 Keystore):** Generate self-signed cryptographic X.509 digital certificates (`P12Generator`) and sign PDF documents securely (`PdfSigner`).
+### 3. ✍️ Signature Support
+* Supports both real Digital Signatures and custom Handwritten Signatures for esthetics.
+* **Signature Creation:** Draw and save custom handwritten signatures using an interactive SVG signature canvas.
+* **Digital Signatures:** Securely sign PDF documents using cryptographic P12 keystores and digital certificates.
 
 <!-- TODO: Add screenshot of the Signature Canvas & Digital P12 Signing here -->
 
 ---
 
 ### 4. 🧪 Automated Testing & CI/CD Pipeline
-* **Robust Test Suite:** **23 passing unit and Robolectric UI state/navigation tests** covering ViewModels, crypto generation, SVG/PDF exporters, and navigation transitions.
+* **Test Suite for contiouns instegratuiions** 
 * **Custom Gradle Task:** Run all tests locally with a single command:
   ```bash
   ./gradlew runAllTests
