@@ -1,83 +1,72 @@
+# DocumentsApp 📄✨
 
-## Competition
-In this chapter, we will explore similar apps. Analyzing their features, user interface, and overall user experience as well as their uniquefeatures
-The goal is to identify gaps in the market and opportunities for differentiation. By understanding what competitors offer, we can better position our app to meet user needs and stand out in the marketplace.
+An advanced, feature-rich Android document scanning, editing, and digital signing application built with modern Android architecture and Jetpack components.
 
-### CamScan
-    
-- Limited editing features, can only scan and save documents.
-- Popup ads and watermarks to scanned documents in the free version.
-- User-friendly interface
-- Can reorder pages
-- Works
-- Can forward scanned documents via email or whatsapp
+---
 
-### Adobe Scan
-- Requires Adobe account to use the app.
-- Needs a different app to edit scanned documents.
-- Fremium model with limited features in the free version.
+## 🚀 Strong Features & Core Capabilities
 
-### Tap Scanner
-- Filters
-- Freemeium model with limited features in the free version.
-- Constant beaging to upgrade to premium version.
-- Limited scan per day in the free version.
+### 1. 📷 Smart Document Scanning & Edge Detection
+* **Camera Integration:** Seamless document capture using CameraX.
+* **OpenCV Edge Detection:** Automatic document bounding box and edge detection for crisp, professional scans.
+* **Interactive Cropping:** Precise crop overlay view (`CropFragment`) to adjust scan boundaries.
 
-### PDF Scanner App
-- Works
-- 7days free trial with limited features.
-- Fake support for signitures
-- No auto cropping or auto enhancing features for scanned documents.\
+<!-- TODO: Add screenshot of the Camera & Scan Cropping here -->
 
-## Initally planned features
-- Scan documents using the camera, exports pdf.
-- Open existing pdf documents and images, exports pdf.
-- Edit existing documents, including cropping, rotating, and adjusting brightness/contrast.
-- Create or import svg files to be used as signatures.
-- Create or import digital signatures in order to sign documents.
+---
 
-## Pages Structure
-- Home Page:
-    - see recent documents,
-    - side menu with buttons,
-    - buttons in the bottom for scanning
-    - help button in the top left corner
+### 2. 🎛️ Powerful Multi-Page Document Editing
+* **Multi-Page Management:** Add, reorder, rotate (90° increments), and delete pages on the fly using `DocumentViewModel`.
+* **Image Filters:** Apply grayscale, black & white, and custom color filters.
+* **Retake Workflow:** Replace or retake specific scanned pages (`retakePageIndex`) seamlessly.
 
-- Help Page:
-    - App description
-    - FAQ section
+<!-- TODO: Add screenshot of the Multi-page Edit & Page Manager here -->
 
-- Camera Mode:
-    - Camera view with a button to capture the document
-    - Camera feed in the background
-    - Option to turn on/off flash
-    - Option to select document format (e.g., ID, receipt, etc.)
+---
 
-- Edit Mode:
-    - Display the captured document with options to crop, rotate, and adjust brightness/contrast.
-    - Option to add a signature or text to the document.
-    - Save / Export options
+### 3. ✍️ Advanced Signature & PDF Signing Studio
+* **SVG Signature Canvas (`SvgSignatureFragment`):** Draw smooth signatures with multiple tools (Classic Pen, Pencil, Eraser) and export to SVG.
+* **Digital Signatures (P12 Keystore):** Generate self-signed cryptographic X.509 digital certificates (`P12Generator`) and sign PDF documents securely (`PdfSigner`).
 
-- Signature Mode:
-    - Paint canvas for creating a signature
-    - Option to create a digital signature (not commanded)
-    - Import / Export an existing signature to / from the device's storage.
+<!-- TODO: Add screenshot of the Signature Canvas & Digital P12 Signing here -->
 
-Home Page -> Help Page -> Home page
+---
 
-Home page -> Camera Mode -> Edit Mode -> Home Page
+### 4. 🧪 Automated Testing & CI/CD Pipeline
+* **Robust Test Suite:** **23 passing unit and Robolectric UI state/navigation tests** covering ViewModels, crypto generation, SVG/PDF exporters, and navigation transitions.
+* **Custom Gradle Task:** Run all tests locally with a single command:
+  ```bash
+  ./gradlew runAllTests
+  ```
+* **GitHub Actions CI:** Automated workflow (`.github/workflows/android.yml`) that builds the app and executes all tests on every push and pull request.
 
-Home Page -> Edit Mode -> Home Page
+---
 
-Home Page -> Recent Signature -> Add New -> Canvas Page
-                                         -> Digital Signature Form   
-                                         -> Import from Device [ -> Info Page]
-                              -> Export to Device
+## 🗺️ App Navigation Flow
 
-Known Bugs:
-  Canvas - after a number of lines, you are kickout of canvas
-         - pen - o line will apppear from origin to currnet location if you hold the finger over a point for some time
+```mermaid
+graph TD
+    Home["Home Screen (nav_home)"] -->|Scan| Camera["Camera Screen (nav_camera)"]
+    Camera -->|Capture| Crop["Crop Screen (nav_crop)"]
+    Crop -->|Confirm| Edit["Edit & Page Manager (nav_edit_images)"]
+    Home -->|Import PDF| Edit
+    Edit -->|Save / Export| PdfView["PDF Viewer (nav_pdf_view)"]
+    Home -->|Signatures| SigList["Signature List (nav_signature)"]
+    SigList -->|Add New| SigSelection["Signature Selection (nav_signature_selection)"]
+    SigSelection -->|Draw| SvgSig["SVG Signature Canvas (nav_svg_signature)"]
+    SigSelection -->|Digital| DigiSig["Digital Signature Form (nav_digital_signature)"]
+    DigiSig -->|Help| DigiHelp["Digital Signature Help (nav_digital_signature_help)"]
+    Home -->|Menu| Help["Help & FAQ (nav_help)"]
+```
 
+---
 
+## 🛠️ Getting Started & Local Testing
 
+Clone the repository and run all tests locally:
 
+```bash
+git clone https://github.com/your-username/DocumentsApp.git
+cd DocumentsApp
+./gradlew runAllTests
+```
