@@ -2,6 +2,8 @@
 
 An advanced, feature-rich document scanning, editing, and digital signing application built for Android architecture.
 
+> 📚 **Detailed Technical Documentation**: For an in-depth architectural breakdown, computer vision algorithms, cryptographic signing details, and component diagrams, visit the [In-Depth Documentation](docs/DOCUMENTATION.md).
+
 ---
 
 ## 🚀 Core Capabilities
@@ -109,3 +111,21 @@ git clone https://github.com/your-username/DocumentsApp.git
 cd DocumentsApp
 ./gradlew runAllTests
 ```
+
+---
+
+## 📚 Technical Documentation
+
+For complete developer guides, technical specifications, computer vision pipeline details, and architecture diagrams, check out the dedicated documentation:
+
+* 📖 **[In-Depth Technical Documentation](docs/DOCUMENTATION.md)**
+  * [Architecture & System Overview](docs/DOCUMENTATION.md#-architecture--system-overview)
+  * [Component Architecture & UI Layer](docs/DOCUMENTATION.md#-component-architecture--ui-layer)
+  * [Smart Document Scanning & Edge Detection](docs/DOCUMENTATION.md#-smart-document-scanning--edge-detection)
+  * [Multi-Page Editing & Image Processing Engine](docs/DOCUMENTATION.md#-multi-page-editing--image-processing-engine)
+  * [PDF Generation & Interactive Viewing Engine](docs/DOCUMENTATION.md#-pdf-generation--interactive-viewing-engine)
+  * [Signature Engine (SVG Vector & Cryptographic P12)](docs/DOCUMENTATION.md#-signature-engine-svg-vector--cryptographic-p12)
+  * [Data Persistence & Storage Management](docs/DOCUMENTATION.md#-data-persistence--storage-management)
+  * [Testing Strategy & CI/CD Pipeline](docs/DOCUMENTATION.md#-testing-strategy--cicd-pipeline)
+  * [Security, Privacy & Scoped Storage](docs/DOCUMENTATION.md#-security-privacy--scoped-storage)
+
