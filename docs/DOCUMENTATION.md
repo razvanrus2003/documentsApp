@@ -99,21 +99,25 @@ Real-time document detection operates on incoming camera preview frames through 
 4. **Multi-Pass Iterative Canny Edge Detection**:
    To catch low-contrast document borders on textured desks, multi-pass Canny edge detection (`Imgproc.Canny`) runs at decreasing threshold levels $t \in \{100, 60, 20\}$ with high threshold $2t$. Canny edge lines are dilated (`Imgproc.dilate`) to enforce closed boundary loops.
 5. **Contour Extraction & Area Pre-Filtering**:
-   `Imgproc.findContours` extracts closed curves using `RETR_EXTERNAL` topological mode and `CHAIN_APPROX_SIMPLE` point compression. Contours with a raw area smaller than $5\%$ of total frame area ($\text{Area}_{img} = W \times H$) are immediately rejected to optimize performance.
+   `Imgproc.findContours` extracts closed curves using `RETR_EXTERNAL` topological mode and `CHAIN_APPROX_SIMPLE` point compression. Contours with a raw area smaller than $5\%$ of total frame area ($\text{Area}_{\text{img}} = W \times H$) are immediately rejected to optimize performance.
 6. **Ramer-Douglas-Peucker Polygon Approximation**:
    Filtered contours are converted to 2D floating-point coordinates (`MatOfPoint2f`) and simplified using the Ramer-Douglas-Peucker algorithm (`Geometry.approxPolyDP`) with an epsilon distance parameter $\epsilon = 0.02 \times \text{Perimeter}$.
 7. **Quadrilateral Validation & Geometric Constraints**:
    Candidates must pass strict geometric criteria:
    - **Vertex Count**: Polyline must have exactly $4$ corner points (`approxArray.size == 4`).
-   - **Area Boundary**: Quadrilateral area must occupy between $5\%$ and $95\%$ of total frame area ($0.05 \cdot \text{Area}_{img} < \text{Area}_{quad} < 0.95 \cdot \text{Area}_{img}$).
+   - **Area Boundary**: Quadrilateral area must occupy between $5\%$ and $95\%$ of total frame area ($0.05 \cdot \text{Area}_{\text{img}} < \text{Area}_{\text{quad}} < 0.95 \cdot \text{Area}_{\text{img}}$).
    - **Convexity Constraint**: Verified via `Geometry.isContourConvex` to reject self-intersecting shapes.
    - **Orthogonality / Interior Angle Constraint**: Calculates interior angle cosines $\cos(\theta) = \frac{\vec{u} \cdot \vec{v}}{\|\vec{u}\| \|\vec{v}\|}$. Candidates with $\max(\cos\theta) \ge 0.3$ (interior angles departing significantly from $90^\circ$) are discarded.
 8. **Candidate Quality Scoring & Ranking**:
    Valid candidates are ranked using a squareness-weighted quality metric:
-   $$\text{sortFactor} = \text{Area} \cdot (1.0 - 2.0 \cdot \max(\cos\theta)) + 0.1 \cdot \text{Weight}$$
+   $$
+   \text{sortFactor} = \text{Area} \cdot (1.0 - 2.0 \cdot \max(\cos\theta)) + 0.1 \cdot \text{Weight}
+   $$
 9. **Low-Pass Exponential Moving Average (EMA) Corner Stabilization**:
-   To eliminate spatial jitter caused by handheld camera tremor, detected corner coordinates $P_{target}$ are smoothed against the previous frame $P_{current}$ using an EMA low-pass filter ($\alpha = 0.7$):
-   $$P_{smooth} = P_{current} \cdot (1 - \alpha) + P_{target} \cdot \alpha$$
+   To eliminate spatial jitter caused by handheld camera tremor, detected corner coordinates $P_{\text{target}}$ are smoothed against the previous frame $P_{\text{current}}$ using an EMA low-pass filter ($\alpha = 0.7$):
+   $$
+   P_{\text{smooth}} = P_{\text{current}} \cdot (1 - \alpha) + P_{\text{target}} \cdot \alpha
+   $$
 
 ---
 
@@ -133,21 +137,31 @@ Once document corner coordinates are finalized, perspective distortion is mathem
 
 1. **2D Planar Homography Transformation**:
    A 2D projective transformation maps arbitrary source quadrilateral points $p_i = (x_i, y_i, 1)^T$ to target rectangular destination points $p'_i = (x'_i, y'_i, 1)^T$ via a $3 \times 3$ non-singular Homography matrix $H$:
-   $$\begin{bmatrix} x' \\ y' \\ 1 \end{bmatrix} \sim H \begin{bmatrix} x \\ y \\ 1 \end{bmatrix} = \begin{bmatrix} h_{11} & h_{12} & h_{13} \\ h_{21} & h_{22} & h_{23} \\ h_{31} & h_{32} & h_{33} \end{bmatrix} \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}$$
+   $$
+   \begin{bmatrix} x' \\ y' \\ 1 \end{bmatrix} \sim H \begin{bmatrix} x \\ y \\ 1 \end{bmatrix} = \begin{bmatrix} h_{11} & h_{12} & h_{13} \\ h_{21} & h_{22} & h_{23} \\ h_{31} & h_{32} & h_{33} \end{bmatrix} \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}
+   $$
 
 2. **Direct Linear Transform (DLT) Matrix Computation**:
    Setting scale parameter $h_{33} = 1$ leaves $8$ degrees of freedom. Each corner correspondence yields two independent linear equations:
-   $$x'_i = \frac{h_{11}x_i + h_{12}y_i + h_{13}}{h_{31}x_i + h_{32}y_i + 1}, \quad y'_i = \frac{h_{21}x_i + h_{22}y_i + h_{23}}{h_{31}x_i + h_{32}y_i + 1}$$
+   $$
+   x'_i = \frac{h_{11}x_i + h_{12}y_i + h_{13}}{h_{31}x_i + h_{32}y_i + 1}, \quad y'_i = \frac{h_{21}x_i + h_{22}y_i + h_{23}}{h_{31}x_i + h_{32}y_i + 1}
+   $$
    `Geometry.getPerspectiveTransform` solves $H$ using Singular Value Decomposition (SVD) on the resulting system of 8 linear equations.
 
 3. **Backward Image Warping & Bilinear Interpolation**:
-   `Imgproc.warpPerspective` computes inverse mapping $p_{src} = H^{-1} p_{dst}$ for every destination pixel $(x', y')$. Fractional source coordinates $(x, y)$ are sampled using **Bilinear Interpolation** to eliminate aliasing artifacts:
-   $$f(x,y) \approx (1-u)(1-v) f(x_0, y_0) + u(1-v) f(x_1, y_0) + (1-u)v f(x_0, y_1) + uv f(x_1, y_1)$$
+   `Imgproc.warpPerspective` computes inverse mapping $p_{\text{src}} = H^{-1} p_{\text{dst}}$ for every destination pixel $(x', y')$. Fractional source coordinates $(x, y)$ are sampled using **Bilinear Interpolation** to eliminate aliasing artifacts:
+   $$
+   f(x,y) \approx (1-u)(1-v) f(x_0, y_0) + u(1-v) f(x_1, y_0) + (1-u)v f(x_0, y_1) + uv f(x_1, y_1)
+   $$
 
 4. **Aspect-Ratio Compensated Spatial Coordinate Mapping**:
-   Corner coordinates measured on preview analysis frames $(W_{ana}, H_{ana})$ are mapped to full camera sensor resolution $(W_{bmp}, H_{bmp})$ via `mapAnalysisToBitmap`:
-   $$\text{Scale} = \max\left(\frac{H_{bmp}}{H_{ana}}, \frac{W_{bmp}}{W_{ana}}\right)$$
-   $$\begin{bmatrix} X_{bmp} \\ Y_{bmp} \end{bmatrix} = \text{Scale} \cdot \begin{bmatrix} X_{ana} \\ Y_{ana} \end{bmatrix} - \begin{bmatrix} \text{Offset}_X \\ \text{Offset}_Y \end{bmatrix}$$
+   Corner coordinates measured on preview analysis frames $(W_{\text{ana}}, H_{\text{ana}})$ are mapped to full camera sensor resolution $(W_{\text{bmp}}, H_{\text{bmp}})$ via `mapAnalysisToBitmap`:
+   $$
+   \text{Scale} = \max\left(\frac{H_{\text{bmp}}}{H_{\text{ana}}}, \frac{W_{\text{bmp}}}{W_{\text{ana}}}\right)
+   $$
+   $$
+   \begin{bmatrix} X_{\text{bmp}} \\ Y_{\text{bmp}} \end{bmatrix} = \text{Scale} \cdot \begin{bmatrix} X_{\text{ana}} \\ Y_{\text{ana}} \end{bmatrix} - \begin{bmatrix} \text{Offset}_X \\ \text{Offset}_Y \end{bmatrix}
+   $$
 
 ---
 
@@ -155,43 +169,84 @@ Once document corner coordinates are finalized, perspective distortion is mathem
 
 The multi-page editor (`EditImagesFragment`) provides high-performance document page reordering, rotation, retaking, deletion, and real-time image filtering.
 
-### 🧪 Custom OpenCV Filter Suite & Kernel Specifications (`ImageUtils`)
+### 🧪 Custom OpenCV Filter Suite Specifications (`ImageUtils`)
 
 All image processing algorithms are executed natively via OpenCV C++ acceleration wrappers:
 
-```
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-| Filter Name       | Kernel / Formula / Matrix                               | Algorithm Explanation                                       |
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-| Black & White     | Otsu Inter-Class Variance Maximization:                 | Converts RGB to 8-bit grayscale (COLOR_RGB2GRAY). Otsu's    |
-| (B&W)             | σ_b^2(t) = ω_0(t) ω_1(t) [μ_0(t) - μ_1(t)]^2            | algorithm evaluates intensity histograms to automatically  |
-|                   | Output: I(x,y) > T* ? 255 : 0                           | calculate optimal global binarization threshold T*.         |
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-| Blur Remover      | Laplacian 3x3 Sharpening Convolution Kernel:            | Applies 2D spatial convolution (Imgproc.filter2D). Center   |
-|                   | [ 0, -1,  0 ]                                           | weight +5 amplifies primary pixel intensity while           |
-|                   | [-1,  5, -1 ]                                           | subtracting 4-cardinal spatial neighbors, sharpening edges. |
-|                   | [ 0, -1,  0 ]                                           |                                                             |
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-| Equalizer         | Histogram CDF Equalization in CIELAB:                   | Converts RGB to CIELAB (COLOR_RGB2Lab). Applies histogram   |
-|                   | T(k) = round( (CDF(k) - CDF_min) / (N - CDF_min) * 255 )| equalization to L* lightness channel, normalizing uneven    |
-|                   |                                                         | document shadows without distorting chrominance.            |
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-| Greyscale         | ITU-R BT.601 Luminance Conversion:                      | Drops color channels and maps RGB to luminance based on     |
-|                   | Y = 0.299 R + 0.587 G + 0.114 B                         | human ocular spectral sensitivity (highest to green).       |
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-| Invert            | Bitwise Complement (Core.bitwise_not):                  | Inverts all pixel color channels for dark-mode style        |
-|                   | I_out(x,y) = 255 - I_in(x,y)                            | document reading.                                           |
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-| Sketch            | Gaussian Blur (21x21) + Color Dodge Division:           | Inverts grayscale image, applies heavy 21x21 Gaussian blur  |
-|                   | I_sketch = min(255, (I_gray * 256) / (255 - I_blur + 1))| (G(x,y)), and applies Color Dodge division blend.           |
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-| Brightness        | Point-wise Linear Gain/Bias (Mat.convertTo):            | Applies linear transformation: g(x,y) = 1.0 * f(x,y) + 30.0 |
-|                   | g(x,y) = α * f(x,y) + β  (α = 1.0, β = 30.0)            | adding a positive bias offset to increase brightness.       |
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-| Contrast          | Point-wise Linear Gain/Bias (Mat.convertTo):            | Applies linear gain scaling: g(x,y) = 1.5 * f(x,y) + 0.0    |
-|                   | g(x,y) = α * f(x,y) + β  (α = 1.5, β = 0.0)             | stretching dynamic range to sharpen text contrast.          |
-+-------------------+---------------------------------------------------------+-------------------------------------------------------------+
-```
+#### 1. Black & White (B&W)
+* **Kernel / Formula**:
+  Otsu's Inter-Class Variance Maximization:
+  $$
+  \sigma_b^2(t) = \omega_0(t) \omega_1(t) [\mu_0(t) - \mu_1(t)]^2
+  $$
+  Output pixel binarization:
+  $$
+  I_{\text{dst}}(x,y) = \begin{cases} 255 & \text{if } I_{\text{gray}}(x,y) > T^* \\ 0 & \text{otherwise} \end{cases}
+  $$
+* **Algorithm Explanation**: Converts RGB to 8-bit single-channel grayscale (`COLOR_RGB2GRAY`). When no manual threshold is provided, Otsu's algorithm evaluates the intensity histogram to automatically calculate the optimal global threshold $T^*$ that maximizes variance between background and foreground text pixels.
+
+#### 2. Blur Remover
+* **Kernel / Formula**:
+  Laplacian $3 \times 3$ Sharpening Spatial Convolution Kernel:
+  $$
+  K = \begin{bmatrix} 0 & -1 & 0 \\ -1 & 5 & -1 \\ 0 & -1 & 0 \end{bmatrix}
+  $$
+  Convolution equation:
+  $$
+  I_{\text{dst}}(x,y) = \sum_{i=-1}^1 \sum_{j=-1}^1 K(i+1, j+1) \cdot I_{\text{src}}(x+i, y+j)
+  $$
+* **Algorithm Explanation**: Applies 2D spatial convolution (`Imgproc.filter2D`). The center weight $+5$ amplifies the target pixel intensity while subtracting the 4-cardinal spatial neighbors, sharpening text edges and recovering motion-blurred characters.
+
+#### 3. Equalizer
+* **Kernel / Formula**:
+  Histogram Cumulative Distribution Function (CDF) Equalization in CIELAB Luminance ($L^*$):
+  $$
+  T(k) = \text{round}\left( \frac{\text{CDF}(k) - \text{CDF}_{\min}}{(W \times H) - \text{CDF}_{\min}} \times 255 \right)
+  $$
+* **Algorithm Explanation**: Converts RGB to CIELAB color space (`COLOR_RGB2Lab`). Applies histogram equalization (`Imgproc.equalizeHist`) strictly to the $L^*$ lightness channel, spreading non-uniform shadow/lighting intensity distributions across $[0, 255]$ without distorting chrominance colors.
+
+#### 4. Greyscale
+* **Kernel / Formula**:
+  ITU-R BT.601 Standard Luminance Projection:
+  $$
+  Y(x,y) = 0.299 R(x,y) + 0.587 G(x,y) + 0.114 B(x,y)
+  $$
+* **Algorithm Explanation**: Drops color channels and projects RGB color values into luminance intensity based on human spectral eye sensitivity (heaviest weighting to green).
+
+#### 5. Invert
+* **Kernel / Formula**:
+  Bitwise Complement (`Core.bitwise_not`):
+  $$
+  I_{\text{dst}}(x,y) = 255 - I_{\text{src}}(x,y) \quad \text{for } C \in \{R, G, B\}
+  $$
+* **Algorithm Explanation**: Reverses all color values across channels, producing a dark-mode styled document view.
+
+#### 6. Sketch
+* **Kernel / Formula**:
+  Gaussian Blur ($21 \times 21$, $\sigma=0$) + Color Dodge Division Blend:
+  $$
+  G(x,y) = \frac{1}{2\pi \sigma^2} e^{-\frac{x^2 + y^2}{2\sigma^2}}
+  $$
+  $$
+  I_{\text{sketch}}(x,y) = \min\left(255, \frac{I_{\text{gray}}(x,y) \cdot 256}{255 - I_{\text{blur}}(x,y) + 1}\right)
+  $$
+* **Algorithm Explanation**: Inverts the grayscale image, applies a heavy $21 \times 21$ Gaussian blur (`Imgproc.GaussianBlur`), inverts the blur, and applies a Color Dodge division blend to isolate sharp edge lines while washing out flat backgrounds.
+
+#### 7. Brightness
+* **Kernel / Formula**:
+  Point-wise Linear Transformation (`Mat.convertTo`):
+  $$
+  g(x,y) = 1.0 \cdot f(x,y) + 30.0
+  $$
+* **Algorithm Explanation**: Adds a positive bias offset ($\beta = 30.0$) directly to pixel intensities, brightening underexposed documents.
+
+#### 8. Contrast
+* **Kernel / Formula**:
+  Point-wise Linear Gain Transformation (`Mat.convertTo`):
+  $$
+  g(x,y) = 1.5 \cdot f(x,y) + 0.0
+  $$
+* **Algorithm Explanation**: Applies a linear gain factor ($\alpha = 1.5$) to scale pixel intensities, expanding the dynamic range to make faint text stand out.
 
 ---
 
@@ -231,17 +286,23 @@ DocumentsApp features a dual-mode signature architecture: **Visual Vector Signat
 The vector drawing view implements three specialized tools operating on a hardware-accelerated ARGB_8888 canvas layer (`setLayerType(LAYER_TYPE_HARDWARE, null)`):
 
 1. **Pen Tool**:
-   - **Smooth Quadratic Bézier Curve Interpolation**: Motion events (`ACTION_MOVE`) compute midpoints $M = (\frac{X_{last} + X_{curr}}{2}, \frac{Y_{last} + Y_{curr}}{2})$ and construct smooth quadratic Bézier curves (`Path.quadTo`) to eliminate angular joints:
-     $$P(t) = (1-t)^2 P_0 + 2(1-t)t P_1 + t^2 P_2$$
+   - **Smooth Quadratic Bézier Curve Interpolation**: Motion events (`ACTION_MOVE`) compute midpoints $M = (\frac{X_{\text{last}} + X_{\text{curr}}}{2}, \frac{Y_{\text{last}} + Y_{\text{curr}}}{2})$ and construct smooth quadratic Bézier curves (`Path.quadTo`) to eliminate angular joints:
+     $$
+     P(t) = (1-t)^2 P_0 + 2(1-t)t P_1 + t^2 P_2
+     $$
    - **Velocity-Responsive Dynamic Stroke Width**: Uses `VelocityTracker` to measure touch speed $v = \sqrt{v_x^2 + v_y^2}$. Stroke width scales inversely with velocity to emulate natural ink flow:
-     $$W_{target} = W_{base} \cdot \left(1.2 - \text{clamp}\left(\frac{v}{3000}, 0.0, 0.9\right)\right)$$
-     Smoothly interpolated via EMA: $W_{curr} = 0.6 \cdot W_{last} + 0.4 \cdot W_{target}$.
+     $$
+     W_{\text{target}} = W_{\text{base}} \cdot \left(1.2 - \mathrm{clamp}\left(\frac{v}{3000}, 0.0, 0.9\right)\right)
+     $$
+     Smoothly interpolated via EMA: $W_{\text{curr}} = 0.6 \cdot W_{\text{last}} + 0.4 \cdot W_{\text{target}}$.
    - **Paint Config**: `Paint.Style.STROKE`, `Paint.Cap.ROUND`, `Paint.Join.ROUND` with full anti-aliasing.
 
 2. **Pencil Tool**:
    - **Textured Ribbon-Mesh Rendering Engine**: Instead of basic line paths, the Pencil tool computes perpendicular normal vectors along sub-pixel trajectory points using `PathMeasure`.
    - **Ribbon Edge Geometry**: Along trajectory tangent $\vec{T} = (t_x, t_y)$, normal vector $\vec{N} = (-t_y, t_x)$ calculates left and right ribbon boundary edges:
-     $$L_i = P_i + \vec{N} \cdot \frac{W_i}{2}, \quad R_i = P_i - \vec{N} \cdot \frac{W_i}{2}$$
+     $$
+     L_i = P_i + \vec{N} \cdot \frac{W_i}{2}, \quad R_i = P_i - \vec{N} \cdot \frac{W_i}{2}
+     $$
    - **Polygon Quad Fill**: Fills connecting quadrilaterals (`Path.moveTo(L_{i-1})` $\rightarrow$ `lineTo(L_i)` $\rightarrow$ `lineTo(R_i)` $\rightarrow$ `lineTo(R_{i-1})` $\rightarrow$ `close()`) with solid fill paint (`Paint.Style.FILL`) and renders joint circles to produce organic graphite pencil stroke textures.
 
 3. **Eraser Tool**:
