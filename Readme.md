@@ -41,7 +41,7 @@ An advanced, feature-rich document scanning, editing, and digital signing applic
 ---
 
 ### 4. 🧪 Automated Testing & CI/CD Pipeline
-* **Test Suite for contiouns instegratuiions** 
+* **Test Suite for continuous integration** 
 * **Custom Gradle Task:** Run all tests locally with a single command:
   ```bash
   ./gradlew runAllTests
@@ -54,17 +54,48 @@ An advanced, feature-rich document scanning, editing, and digital signing applic
 
 ```mermaid
 graph TD
-    Home["Home Screen (nav_home)"] -->|Scan| Camera["Camera Screen (nav_camera)"]
-    Camera -->|Capture| Crop["Crop Screen (nav_crop)"]
-    Crop -->|Confirm| Edit["Edit & Page Manager (nav_edit_images)"]
-    Home -->|Import PDF| Edit
-    Edit -->|Save / Export| PdfView["PDF Viewer (nav_pdf_view)"]
-    Home -->|Signatures| SigList["Signature List (nav_signature)"]
-    SigList -->|Add New| SigSelection["Signature Selection (nav_signature_selection)"]
-    SigSelection -->|Draw| SvgSig["SVG Signature Canvas (nav_svg_signature)"]
-    SigSelection -->|Digital| DigiSig["Digital Signature Form (nav_digital_signature)"]
-    DigiSig -->|Help| DigiHelp["Digital Signature Help (nav_digital_signature_help)"]
-    Home -->|Menu| Help["Help & FAQ (nav_help)"]
+    Home["Home Screen (nav_home)"]
+    Camera["Camera Screen (nav_camera)"]
+    Crop["Crop Screen (nav_crop)"]
+    Edit["Edit & Page Manager (nav_edit_images)"]
+    PdfView["PDF Viewer (nav_pdf_view)"]
+    SigList["Signature List (nav_signature)"]
+    SigSelection["Signature Selection (nav_signature_selection)"]
+    SvgSig["SVG Signature Canvas (nav_svg_signature)"]
+    DigiSig["Digital Signature Form (nav_digital_signature)"]
+    DigiHelp["Digital Signature Help (nav_digital_signature_help)"]
+    Help["Help & FAQ (nav_help)"]
+
+    %% Forward Navigation Flows
+    Home -->|Scan / Camera| Camera
+    Home -->|Open / Import PDF| PdfView
+    Home -->|Signatures| SigList
+    Home -->|Help & FAQ| Help
+
+    Camera -->|Manual Capture| Crop
+    Camera -->|Auto Capture| Edit
+    Crop -->|Confirm Crop| Edit
+    Edit -->|Add / Retake Page| Camera
+    Edit -->|Save & Export PDF| PdfView
+
+    PdfView -->|Add Signature| SigList
+    SigList -->|Select Signature| PdfView
+
+    SigList -->|Add New| SigSelection
+    SigSelection -->|Draw SVG| SvgSig
+    SigSelection -->|Digital Signature| DigiSig
+    SigSelection -->|Import File| SigList
+    SvgSig -->|Save| SigList
+    DigiSig -->|Save| SigList
+    DigiSig -->|Help| DigiHelp
+    DigiHelp -->|Back| DigiSig
+
+    %% Return Arrows to Home Screen
+    Camera -->|Back| Home
+    Edit -->|Cancel / Finish| Home
+    PdfView -->|Back / Save| Home
+    SigList -->|Back| Home
+    Help -->|Back| Home
 ```
 
 ---
